@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        SilentMapConverter
-# Purpose:     Convert arma 2 mission file into an sqf script
+# Purpose:     Convert arma 2 mission files into an sqf script files
 #
 # Author:      SilentSpike
 #
@@ -146,5 +146,3 @@ for fileName in sqmFiles:
         outputPath = scriptDirectory + fileName[:len(fileName)-1] + "f"
         with open(outputPath, 'w') as outputFile:
             outputFile.write(outputString)
-    else:
-        print "There is no mission.sqm in this directory"
