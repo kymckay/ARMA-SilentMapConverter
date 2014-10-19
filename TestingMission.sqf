@@ -22,8 +22,8 @@ if ((true and not(false)) and (random 1 < 0.4)) then {
 	HereIsAName setVehicleAmmo 0.36;
 	HereIsAName setRank "LIEUTENANT";
 	_currentGroup selectLeader HereIsAName;
+	HereIsAName setVehicleInit "SomeGlobal = this;";
 };
-	SomeGlobal = this;
 
 
 _currentGroup = createGroup east;
@@ -61,3 +61,4 @@ if !(alive _currentUnit) then {
 Waypoint
 Waypoint
 Waypoint
+processInitCommands;
