@@ -20,6 +20,7 @@ if ((true and not(false)) and (random 1 < 0.4)) then {
 	HereIsAName setFuel 0.66;
 	HereIsAName setSkill 0.48;
 	HereIsAName setVehicleAmmo 0.36;
+	HereIsAName setRank "LIEUTENANT";
 };
 
 _currentGroup = createGroup east;

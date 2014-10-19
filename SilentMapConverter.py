@@ -115,6 +115,13 @@ for fileName in sqmFiles:
                                         outputString += "\t"
                                     outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
 
+                                #Rank should be set to preserve chain of command + ratings
+                                vehRank = re.search(r"rank=(\".*\");",currentItem,re.I)
+                                if vehRank:
+                                    if vehPresence or vehProbability:
+                                        outputString += "\t"
+                                    outputString += "{0} setRank {1};\n".format(vehVarName,vehRank.group(1))
+
                                 #Set health, fuel, skill and ammo only if necessary
                                 vehHealth = re.search(r"health=(\d+\.?\d*);",currentItem,re.I)
                                 vehFuel = re.search(r"fuel=(\d+\.?\d*);",currentItem,re.I)
