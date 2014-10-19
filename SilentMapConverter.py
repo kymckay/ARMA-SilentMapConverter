@@ -146,6 +146,17 @@ for fileName in sqmFiles:
                                         outputString += "\t"
                                     outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
 
+                                #If the unit has an init field it can be imported straight into the file
+                                vehInit = re.search(r"init=\"(.*)\";",currentItem,re.I)
+                                if vehInit:
+                                    if vehPresence or vehProbability:
+                                        outputString += "\t"
+                                    outputString += vehInit.group(1)
+                                    if outputString[len(outputString)-1] != ";":
+                                        outputString += ";\n"
+                                    else:
+                                        outputString += "\n"
+
                                 #If any condition of presence is present then the if statement must be closed
                                 if vehPresence or vehProbability:
                                     outputString += "};\n"
