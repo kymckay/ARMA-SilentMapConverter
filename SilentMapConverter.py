@@ -33,14 +33,14 @@ for fileName in sqmFiles:
 
         #Loop through each line in the mission file for omtimization
         with open(missionPath) as missionFile:
-            outputString = "// Created by SMC v{0}\n\n".format(versionNum)
-            subScope = "" #Will temporarily store each group
+            outputString = "// Created by SMC v{0}\nprivate [\"_currentGroup\",\"_currentUnit\"];\n\n".format(versionNum)
+            subScope = "" #Will temporarily store each class in the scope
             mode = 0 #Mode will refer to the current config scope 0-None, 1-Groups
             for line in missionFile:
                 if mode == 0:
                     if re.search(r"\sclass Groups\n",line,re.I):
                         mode = 1
-                        outputString += "// ### GROUPS ###\n_westHQ = createCenter west;\n_eastHQ = createCenter east;\n_guerHQ = createCenter resistance;\n_civHQ  = createCenter civilian;\n"
+                        outputString += "// ### GROUPS ###\ncreateCenter west;\ncreateCenter east;\ncreateCenter resistance;\ncreateCenter civilian;\n"
                 elif mode == 1:
                     #The current group can be processed when the end of it is reached
                     if reSubReset.match(line):
@@ -55,7 +55,7 @@ for fileName in sqmFiles:
                                 groupSide = "resistance"
                             else:
                                 groupSide = groupSide.group(1).lower()
-                            outputString += "\n_currentGroup = createGroup " + groupSide + ";\n"
+                            outputString += "\n_currentGroup = createGroup {0};\n".format(groupSide)
 
                         #Units and waypoints can now be created
                         for currentItem in itemsArray:
@@ -108,6 +108,12 @@ for fileName in sqmFiles:
                                     if vehPresence or vehProbability:
                                         outputString += "\t"
                                     outputString += "{0} setDir {1};\n".format(vehVarName,vehDir.group(1))
+
+                                #If the unit is the leader of the group then it should be scripted to make sure
+                                if re.search(r"leader=1;",currentItem,re.I):
+                                    if vehPresence or vehProbability:
+                                        outputString += "\t"
+                                    outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
 
                                 #Set health, fuel, skill and ammo only if necessary
                                 vehHealth = re.search(r"health=(\d+\.?\d*);",currentItem,re.I)
