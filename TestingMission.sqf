@@ -16,12 +16,12 @@ if ((true and not(false)) and (random 1 < 0.4)) then {
 		[HereIsAName,_currentGroup] call BIS_fnc_spawnCrew;
 	};
 	HereIsAName setDir 30;
-	_currentGroup selectLeader HereIsAName;
-	HereIsAName setRank "LIEUTENANT";
 	HereIsAName setDamage 0.44;
 	HereIsAName setFuel 0.66;
 	HereIsAName setSkill 0.48;
 	HereIsAName setVehicleAmmo 0.36;
+	HereIsAName setRank "LIEUTENANT";
+	_currentGroup selectLeader HereIsAName;
 };
 
 

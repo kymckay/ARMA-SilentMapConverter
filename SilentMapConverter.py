@@ -111,19 +111,6 @@ for fileName in sqmFiles:
                                         outputString += "\t"
                                     outputString += "{0} setDir {1};\n".format(vehVarName,vehDir.group(1))
 
-                                #If the unit is the leader of the group then it should be scripted to make sure
-                                if re.search(r"leader=1;",currentItem,re.I):
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
-
-                                #Rank should be set to preserve chain of command + ratings
-                                vehRank = re.search(r"rank=(\".*\");",currentItem,re.I)
-                                if vehRank:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setRank {1};\n".format(vehVarName,vehRank.group(1))
-
                                 #Set health, fuel, skill and ammo only if necessary
                                 vehHealth = re.search(r"health=(\d+\.?\d*);",currentItem,re.I)
                                 vehFuel = re.search(r"fuel=(\d+\.?\d*);",currentItem,re.I)
@@ -145,6 +132,19 @@ for fileName in sqmFiles:
                                     if vehPresence or vehProbability:
                                         outputString += "\t"
                                     outputString += "{0} setVehicleAmmo {1};\n".format(vehVarName,vehAmmo.group(1)[:4])
+
+                                #Rank should be set to preserve chain of command + ratings
+                                vehRank = re.search(r"rank=(\".*\");",currentItem,re.I)
+                                if vehRank:
+                                    if vehPresence or vehProbability:
+                                        outputString += "\t"
+                                    outputString += "{0} setRank {1};\n".format(vehVarName,vehRank.group(1))
+
+                                #If the unit is the leader of the group then it should be scripted to make sure
+                                if re.search(r"leader=1;",currentItem,re.I):
+                                    if vehPresence or vehProbability:
+                                        outputString += "\t"
+                                    outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
 
                                 #If any condition of presence is present then the if statement must be closed
                                 if vehPresence or vehProbability:
