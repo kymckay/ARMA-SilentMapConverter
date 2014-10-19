@@ -55,7 +55,7 @@ for fileName in sqmFiles:
                                 groupSide = "resistance"
                             else:
                                 groupSide = groupSide.group(1).lower()
-                            outputString += "\n_currentGroup = createGroup {0};\n".format(groupSide)
+                            outputString += "\n//--New Group--\n_currentGroup = createGroup {0};".format(groupSide)
 
                         #Units and waypoints can now be created
                         for currentItem in itemsArray:
@@ -68,11 +68,11 @@ for fileName in sqmFiles:
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
                                 vehProbability = re.search(r"presence=(\d\.?\d*);",currentItem,re.I)
                                 if vehPresence and vehProbability:
-                                    outputString += "if (({0}) and (random 1 < {1})) then {2}\n\t".format(vehPresence.group(1),vehProbability.group(1)[:4],"{")
+                                    outputString += "\nif (({0}) and (random 1 < {1})) then {2}\n\t".format(vehPresence.group(1),vehProbability.group(1)[:4],"{")
                                 elif vehPresence and not vehPresence:
-                                    outputString += "if ({0}) then {1}\n\t".format(vehPresence.group(1),"{")
+                                    outputString += "\nif ({0}) then {1}\n\t".format(vehPresence.group(1),"{")
                                 elif vehProbability and not vehPresence:
-                                    outputString += "if (random 1 < {0}) then {1}\n\t".format(vehProbability.group(1)[:4],"{")
+                                    outputString += "\nif (random 1 < {0}) then {1}\n\t".format(vehProbability.group(1)[:4],"{")
 
                                 #Use variable name if it exists - instead of a local variable
                                 vehVarName = re.search(r"text=\"(.+)\";",currentItem,re.I)
@@ -94,6 +94,8 @@ for fileName in sqmFiles:
                                     vehSpecial = vehSpecial.group(1)
                                 else:
                                     vehSpecial = "\"FORM\""
+                                if not (vehPresence or vehProbability):
+                                    outputString += "\n"
                                 outputString += "{0} = _currentGroup createUnit [{1}];\n".format(vehVarName,",".join([vehName,vehPosition,"[]",vehRadius,vehSpecial]))
 
                                 #Vehicles won't work with createUnit so this workaround is needed
