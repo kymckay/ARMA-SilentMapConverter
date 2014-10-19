@@ -111,7 +111,7 @@ if os.path.isfile(missionPath):
                             if vehHealth:
                                 if vehPresence or vehProbability:
                                     outputString += "\t"
-                                outputString += "{0} setDamage {1};\n".format(vehVarName,vehHealth.group(1)[:4])
+                                outputString += "{0} setDamage {1};\n".format(vehVarName,str(1 - float(vehHealth.group(1)))[:4])
                             if vehFuel:
                                 if vehPresence or vehProbability:
                                     outputString += "\t"
