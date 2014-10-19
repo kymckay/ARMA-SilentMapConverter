@@ -55,14 +55,14 @@ for fileName in sqmFiles:
                                 groupSide = "resistance"
                             else:
                                 groupSide = groupSide.group(1).lower()
-                            outputString += "\n//--New Group--\n_currentGroup = createGroup {0};".format(groupSide)
+                            outputString += "\n\n_currentGroup = createGroup {0};".format(groupSide)
 
                         #Units and waypoints can now be created
                         for currentItem in itemsArray:
                             #Only waypint classes contain an effects class
                             if re.search(r"\s{5}class Effects",currentItem,re.I):
                                 #itemDetails = re.search()
-                                outputString += "Waypoint\n"
+                                outputString += "\nWaypoint"
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
