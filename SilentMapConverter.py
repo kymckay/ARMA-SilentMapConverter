@@ -147,15 +147,11 @@ for fileName in sqmFiles:
                                     outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
 
                                 #If the unit has an init field it can be imported straight into the file
-                                vehInit = re.search(r"init=\"(.*)\";",currentItem,re.I)
+                                vehInit = re.search(r"init=(\".*\");",currentItem,re.I)
                                 if vehInit:
                                     if vehPresence or vehProbability:
                                         outputString += "\t"
-                                    outputString += vehInit.group(1)
-                                    if outputString[len(outputString)-1] != ";":
-                                        outputString += ";\n"
-                                    else:
-                                        outputString += "\n"
+                                    outputString += "{0} setVehicleInit {1};\n".format(vehVarName,vehInit.group(1))
 
                                 #If any condition of presence is present then the if statement must be closed
                                 if vehPresence or vehProbability:
@@ -168,6 +164,8 @@ for fileName in sqmFiles:
                 if mode != 0 and reReset.match(line):
                     mode = 0
 
+        #Init commands can all finally be ran at end of the file
+        outputString += "\nprocessInitCommands;"
         #The written file should be created/overwritten in the same directory
         outputPath = scriptDirectory + fileName[:len(fileName)-1] + "f"
         with open(outputPath, 'w') as outputFile:
