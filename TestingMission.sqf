@@ -23,6 +23,7 @@ if ((true and not(false)) and (random 1 < 0.4)) then {
 	HereIsAName setRank "LIEUTENANT";
 	_currentGroup selectLeader HereIsAName;
 };
+	SomeGlobal = this;
 
 
 _currentGroup = createGroup east;
