@@ -54,9 +54,11 @@ _currentUnit = _currentGroup createUnit ["Citizen1",[985.55548,1434.9028,0],[],0
 	};
 _currentWaypoint = _currentGroup addWaypoint [[983.25922,1442.6265,0],0];
 	_currentWaypoint setWaypointStatements["true and ("""" == """")",""];
+	_currentWaypoint setWaypointTimeout [0.0, 0.0, 3.0];
 _currentWaypoint = _currentGroup addWaypoint [[989.7901,1444.4753,0],0];
 	_currentWaypoint setWaypointType "LEADER";
 _currentWaypoint = _currentGroup addWaypoint [[982.06641,1446.2646,0],30];
 	_currentWaypoint setWaypointStatements["true and not(false)","d = 1;"];
+	_currentWaypoint setWaypointTimeout [4.0, 5.0, 9.0];
 
 processInitCommands;

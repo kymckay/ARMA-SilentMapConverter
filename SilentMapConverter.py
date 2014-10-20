@@ -45,7 +45,7 @@ for fileName in sqmFiles:
                     #The current group can be processed when the end of it is reached
                     if reSubReset.match(line):
                         groupSide = re.search(r"\s{3}side=\"(\w+?)\";",subScope,re.I)
-                        itemsArray = re.findall(r"\s{4}class Item\d+\n\s{4}\{.+?\s{4}\};",subScope,re.I|re.S)
+                        itemsArray = re.findall(r"\s{4}class Item\d+\n\s{4}\{.+?\n\s{4}\};",subScope,re.I|re.S)
 
                         #Correctly sided group must be created before units can be
                         if groupSide:
@@ -85,6 +85,21 @@ for fileName in sqmFiles:
                                 wpType = re.search(r"type=(\".+\");",currentItem,re.I)
                                 if wpType:
                                     outputString += "\t_currentWaypoint setWaypointType {0};\n".format(wpType.group(1))
+
+                                #timeoutMax, Min and Mid can all exist independently
+                                wpMin = re.search(r"timeoutMin=(\d+\.?\d*);",currentItem,re.I)
+                                wpMid = re.search(r"timeoutMid=(\d+\.?\d*);",currentItem,re.I)
+                                wpMax = re.search(r"timeoutMax=(\d+\.?\d*);",currentItem,re.I)
+                                wpTimeout = [0,0,0]
+                                if wpMin:
+                                    wpTimeout[0] = float(wpMin.group(1))
+                                if wpMid:
+                                    wpTimeout[1] = float(wpMid.group(1))
+                                if wpMax:
+                                    wpTimeout[2] = float(wpMax.group(1))
+                                if cmp(wpTimeout,[0,0,0]) != 0:
+                                    wpTimeout.sort()
+                                    outputString += "\t_currentWaypoint setWaypointTimeout {0};\n".format(str(wpTimeout))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
