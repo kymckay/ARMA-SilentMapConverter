@@ -37,7 +37,7 @@ class Mission
 				items=1;
 				class Item0
 				{
-					presence=0.4;
+					presence=0.43366867;
 					presenceCondition="true and not(false)";
 					position[]={990.29712,40.026936,1434.9325};
 					placement=300;
@@ -49,7 +49,7 @@ class Mission
 					leader=1;
 					rank="LIEUTENANT";
 					skill=0.48654228;
-					health=0.55265373;
+					health=0.063652337;
 					fuel=0.66771299;
 					ammo=0.36362812;
 					text="HereIsAName";
@@ -123,9 +123,11 @@ class Mission
 				class Item0
 				{
 					position[]={983.25922,40.525852,1442.6265};
+					expCond="true and ("""" == """")";
 					class Effects
 					{
 					};
+					timeoutMid=3;
 					showWP="ALWAYS";
 				};
 				class Item1

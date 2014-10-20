@@ -8,14 +8,14 @@ createCenter resistance;
 createCenter civilian;
 
 _currentGroup = createGroup west;
-if ((true and not(false)) and (random 1 < 0.4)) then {
+if ((true and not(false)) and (random 1 < 0.43)) then {
 	HereIsAName = _currentGroup createUnit ["CZ_Special_Forces_Scout_DES_EP1",[990.29712,1434.9325,0],[],300,"FORM"];
 	if !(alive HereIsAName) then {
 		HereIsAName = createVehicle ["CZ_Special_Forces_Scout_DES_EP1",[990.29712,1434.9325,0],[],300,"FORM"];
 		[HereIsAName,_currentGroup] call BIS_fnc_spawnCrew;
 	};
 	HereIsAName setDir 30;
-	HereIsAName setDamage 0.44;
+	HereIsAName setDamage 0.93;
 	HereIsAName setFuel 0.66;
 	HereIsAName setSkill 0.48;
 	HereIsAName setVehicleAmmo 0.36;
@@ -52,8 +52,10 @@ _currentUnit = _currentGroup createUnit ["Citizen1",[985.55548,1434.9028,0],[],0
 		_currentUnit = createVehicle ["Citizen1",[985.55548,1434.9028,0],[],0,"FORM"];
 		[_currentUnit,_currentGroup] call BIS_fnc_spawnCrew;
 	};
-_currentWaypoint = _currentGroup addWaypoint [[983.25922,1442.6265,0],0]
-_currentWaypoint = _currentGroup addWaypoint [[989.7901,1444.4753,0],0]
-_currentWaypoint = _currentGroup addWaypoint [[982.06641,1446.2646,0],30]
+_currentWaypoint = _currentGroup addWaypoint [[983.25922,1442.6265,0],0];
+	_currentWaypoint setWaypointStatements["true and ("""" == """")",""];
+_currentWaypoint = _currentGroup addWaypoint [[989.7901,1444.4753,0],0];
+_currentWaypoint = _currentGroup addWaypoint [[982.06641,1446.2646,0],30];
+	_currentWaypoint setWaypointStatements["true and not(false)","d = 1;"];
 
 processInitCommands;
