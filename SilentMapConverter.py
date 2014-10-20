@@ -87,6 +87,7 @@ for fileName in sqmFiles:
                                     outputString += "\t_currentWaypoint setWaypointType {0};\n".format(wpType.group(1))
 
                                 #timeoutMax, Min and Mid can all exist independently
+                                #Values should be sorted to avoid incorrect arguments
                                 wpMin = re.search(r"timeoutMin=(\d+\.?\d*);",currentItem,re.I)
                                 wpMid = re.search(r"timeoutMid=(\d+\.?\d*);",currentItem,re.I)
                                 wpMax = re.search(r"timeoutMax=(\d+\.?\d*);",currentItem,re.I)
@@ -100,6 +101,11 @@ for fileName in sqmFiles:
                                 if cmp(wpTimeout,[0,0,0]) != 0:
                                     wpTimeout.sort()
                                     outputString += "\t_currentWaypoint setWaypointTimeout {0};\n".format(str(wpTimeout))
+
+                                #combatMode only exists if set, otherwise not needed
+                                wpCombatMode = re.search(r"combatMode=(\".+\");",currentItem,re.I)
+                                if wpCombatMode:
+                                    outputString += "\t_currentWaypoint setWaypointCombatMode {0};\n".format(wpCombatMode.group(1))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
