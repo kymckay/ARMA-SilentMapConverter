@@ -91,16 +91,16 @@ for fileName in sqmFiles:
                                 wpMin = re.search(r"timeoutMin=(\d+\.?\d*);",currentItem,re.I)
                                 wpMid = re.search(r"timeoutMid=(\d+\.?\d*);",currentItem,re.I)
                                 wpMax = re.search(r"timeoutMax=(\d+\.?\d*);",currentItem,re.I)
-                                wpTimeout = [0,0,0]
+                                wpTimeout = ["0","0","0"]
                                 if wpMin:
-                                    wpTimeout[0] = float(wpMin.group(1))
+                                    wpTimeout[0] = wpMin.group(1)
                                 if wpMid:
-                                    wpTimeout[1] = float(wpMid.group(1))
+                                    wpTimeout[1] = wpMid.group(1)
                                 if wpMax:
-                                    wpTimeout[2] = float(wpMax.group(1))
-                                if cmp(wpTimeout,[0,0,0]) != 0:
+                                    wpTimeout[2] = wpMax.group(1)
+                                if cmp(wpTimeout,["0","0","0"]) != 0:
                                     wpTimeout.sort()
-                                    outputString += "\t_currentWaypoint setWaypointTimeout {0};\n".format(str(wpTimeout))
+                                    outputString += "\t_currentWaypoint setWaypointTimeout [{0}];\n".format(",".join(wpTimeout))
 
                                 #combatMode only exists if set, otherwise not needed
                                 wpCombatMode = re.search(r"combatMode=(\".+\");",currentItem,re.I)
