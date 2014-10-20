@@ -111,6 +111,11 @@ for fileName in sqmFiles:
                                 wpBehvaiour = re.search(r"combat=(\".+\");",currentItem,re.I)
                                 if wpCombatMode:
                                     outputString += "\t_currentWaypoint setWaypointBehaviour {0};\n".format(wpBehvaiour.group(1))
+
+                                #Waypoint speed is not needed if not present
+                                wpSpeed = re.search(r"speed=(\".+\");",currentItem,re.I)
+                                if wpCombatMode:
+                                    outputString += "\t_currentWaypoint setWaypointSpeed {0};\n".format(wpSpeed.group(1))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
