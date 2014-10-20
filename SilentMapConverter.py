@@ -69,6 +69,17 @@ for fileName in sqmFiles:
                                 else:
                                     itemRadius = "0"
                                 outputString += "_currentWaypoint = _currentGroup addWaypoint [{0},{1}];\n".format(itemPosition,itemRadius)
+
+                                #expCond and expActiv needed for setWaypointStatements
+                                #Possible for each to exist alone or together
+                                wpCond = re.search(r"expCond=(\".+\");",currentItem,re.I)
+                                wpAct = re.search(r"expActiv=(\".+\");",currentItem,re.I)
+                                if wpCond and wpAct:
+                                    outputString += "\t_currentWaypoint setWaypointStatements[{0},{1}];\n".format(wpCond.group(1),wpAct.group(1))
+                                elif wpCond and not wpAct:
+                                    outputString += "\t_currentWaypoint setWaypointStatements[{0},\"\"];\n".format(wpCond.group(1))
+                                elif wpAct and not wpCond:
+                                    outputString += "\t_currentWaypoint setWaypointStatements[\"true\",{0}];\n".format(wpAct.group(1))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
