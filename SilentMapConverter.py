@@ -62,13 +62,13 @@ for fileName in sqmFiles:
                             #Only waypint classes contain an effects class
                             if re.search(r"\s{5}class Effects",currentItem,re.I):
                                 #Position and radius needed to add a waypoint
-                                vehPosition = "[" + ",".join(re.search(r"position\[\]=\{(\d+\.?\d*),.+,(\d+\.?\d*)\};",currentItem,re.I).group(1,2)) + ",0]"
-                                vehRadius = re.search(r"placement=(\d+\.?\d*);",currentItem,re.I)
-                                if vehRadius:
-                                    vehRadius = vehRadius.group(1)
+                                itemPosition = "[" + ",".join(re.search(r"position\[\]=\{(\d+\.?\d*),.+,(\d+\.?\d*)\};",currentItem,re.I).group(1,2)) + ",0]"
+                                itemRadius = re.search(r"placement=(\d+\.?\d*);",currentItem,re.I)
+                                if itemRadius:
+                                    itemRadius = itemRadius.group(1)
                                 else:
-                                    vehRadius = "0"
-                                outputString += "\n_currentWaypoint = _currentGroup addWaypoint [{0},{1}]".format(vehPosition,vehRadius)
+                                    itemRadius = "0"
+                                outputString += "\n_currentWaypoint = _currentGroup addWaypoint [{0},{1}]".format(itemPosition,itemRadius)
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
@@ -89,12 +89,12 @@ for fileName in sqmFiles:
 
                                 #Classname, position, placement radius and special attributes are all needed for unit creation
                                 vehName = re.search(r"vehicle=(\".+\");",currentItem,re.I).group(1)
-                                vehPosition = "[" + ",".join(re.search(r"position\[\]=\{(\d+\.?\d*),.+,(\d+\.?\d*)\};",currentItem,re.I).group(1,2)) + ",0]"
-                                vehRadius = re.search(r"placement=(\d+\.?\d*);",currentItem,re.I)
-                                if vehRadius:
-                                    vehRadius = vehRadius.group(1)
+                                itemPosition = "[" + ",".join(re.search(r"position\[\]=\{(\d+\.?\d*),.+,(\d+\.?\d*)\};",currentItem,re.I).group(1,2)) + ",0]"
+                                itemRadius = re.search(r"placement=(\d+\.?\d*);",currentItem,re.I)
+                                if itemRadius:
+                                    itemRadius = itemRadius.group(1)
                                 else:
-                                    vehRadius = "0"
+                                    itemRadius = "0"
                                 vehSpecial = re.search(r"special=(\".*\");",currentItem,re.I)
                                 if vehSpecial:
                                     vehSpecial = vehSpecial.group(1)
@@ -102,10 +102,10 @@ for fileName in sqmFiles:
                                     vehSpecial = "\"FORM\""
                                 if not (vehPresence or vehProbability):
                                     outputString += "\n"
-                                outputString += "{0} = _currentGroup createUnit [{1}];\n".format(vehVarName,",".join([vehName,vehPosition,"[]",vehRadius,vehSpecial]))
+                                outputString += "{0} = _currentGroup createUnit [{1}];\n".format(vehVarName,",".join([vehName,itemPosition,"[]",itemRadius,vehSpecial]))
 
                                 #Vehicles won't work with createUnit so this workaround is needed
-                                for appendString in ["if !(alive {0}) then {1}\n".format(vehVarName,"{"),"\t{0} = createVehicle [{1}];\n".format(vehVarName,",".join([vehName,vehPosition,"[]",vehRadius,vehSpecial])),"\t[{0},_currentGroup] call BIS_fnc_spawnCrew;\n".format(vehVarName),"};\n"]:
+                                for appendString in ["if !(alive {0}) then {1}\n".format(vehVarName,"{"),"\t{0} = createVehicle [{1}];\n".format(vehVarName,",".join([vehName,itemPosition,"[]",itemRadius,vehSpecial])),"\t[{0},_currentGroup] call BIS_fnc_spawnCrew;\n".format(vehVarName),"};\n"]:
                                     if vehPresence or vehProbability:
                                         outputString += "\t"
                                     outputString += appendString
