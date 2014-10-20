@@ -1,5 +1,5 @@
 // Created by SMC v1.0
-private ["_currentGroup","_currentUnit"];
+private ["_currentGroup","_currentUnit","_currentWaypoint"];
 
 // ### GROUPS ###
 createCenter west;
@@ -58,7 +58,7 @@ if !(alive _currentUnit) then {
 	[_currentUnit,_currentGroup] call BIS_fnc_spawnCrew;
 };
 
-Waypoint
-Waypoint
-Waypoint
+_currentWaypoint = _currentGroup addWaypoint [[983.25922,1442.6265,0],0]
+_currentWaypoint = _currentGroup addWaypoint [[989.7901,1444.4753,0],0]
+_currentWaypoint = _currentGroup addWaypoint [[982.06641,1446.2646,0],30]
 processInitCommands;
