@@ -68,7 +68,7 @@ for fileName in sqmFiles:
                                     itemRadius = itemRadius.group(1)
                                 else:
                                     itemRadius = "0"
-                                outputString += "_currentWaypoint = _currentGroup addWaypoint [{0},{1}]\n".format(itemPosition,itemRadius)
+                                outputString += "_currentWaypoint = _currentGroup addWaypoint [{0},{1}];\n".format(itemPosition,itemRadius)
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
