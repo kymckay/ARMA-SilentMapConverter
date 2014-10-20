@@ -61,5 +61,6 @@ _currentWaypoint = _currentGroup addWaypoint [[982.06641,1446.2646,0],30];
 	_currentWaypoint setWaypointStatements["true and not(false)","d = 1;"];
 	_currentWaypoint setWaypointTimeout [4.0, 5.0, 9.0];
 	_currentWaypoint setWaypointCombatMode "GREEN";
+	_currentWaypoint setWaypointBehaviour "AWARE";
 
 processInitCommands;
