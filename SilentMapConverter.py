@@ -80,6 +80,11 @@ for fileName in sqmFiles:
                                     outputString += "\t_currentWaypoint setWaypointStatements[{0},\"\"];\n".format(wpCond.group(1))
                                 elif wpAct and not wpCond:
                                     outputString += "\t_currentWaypoint setWaypointStatements[\"true\",{0}];\n".format(wpAct.group(1))
+
+                                #Type only needs to be set if not move (represented as no value in config)
+                                wpType = re.search(r"type=(\".+\");",currentItem,re.I)
+                                if wpType:
+                                    outputString += "\t_currentWaypoint setWaypointType {0};\n".format(wpType.group(1))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
