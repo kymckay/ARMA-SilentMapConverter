@@ -33,7 +33,7 @@ for fileName in sqmFiles:
 
         #Loop through each line in the mission file for omtimization
         with open(missionPath) as missionFile:
-            outputString = "// Created by SMC v{0}\nprivate [\"_currentGroup\",\"_currentUnit\"];\n\n".format(versionNum)
+            outputString = "// Created by SMC v{0}\nprivate [\"_currentGroup\",\"_currentUnit\",\"_currentWaypoint\"];\n\n".format(versionNum)
             subScope = "" #Will temporarily store each class in the scope
             mode = 0 #Mode will refer to the current config scope 0-None, 1-Groups
             for line in missionFile:
@@ -61,8 +61,14 @@ for fileName in sqmFiles:
                         for currentItem in itemsArray:
                             #Only waypint classes contain an effects class
                             if re.search(r"\s{5}class Effects",currentItem,re.I):
-                                #itemDetails = re.search()
-                                outputString += "\nWaypoint"
+                                #Position and radius needed to add a waypoint
+                                vehPosition = "[" + ",".join(re.search(r"position\[\]=\{(\d+\.?\d*),.+,(\d+\.?\d*)\};",currentItem,re.I).group(1,2)) + ",0]"
+                                vehRadius = re.search(r"placement=(\d+\.?\d*);",currentItem,re.I)
+                                if vehRadius:
+                                    vehRadius = vehRadius.group(1)
+                                else:
+                                    vehRadius = "0"
+                                outputString += "\n_currentWaypoint = _currentGroup addWaypoint [{0},{1}]".format(vehPosition,vehRadius)
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
