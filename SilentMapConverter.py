@@ -126,7 +126,7 @@ for fileName in sqmFiles:
                                     outputString += "\t{0} setVehicleAmmo {1};\n".format(vehVarName,vehAmmo.group(1)[:4])
 
                                 #Rank should be set to preserve chain of command + ratings
-                                vehRank = re.search(r"rank=(\".*\");",currentItem,re.I)
+                                vehRank = re.search(r"rank=(\".+\");",currentItem,re.I)
                                 if vehRank:
                                     outputString += "\t{0} setRank {1};\n".format(vehVarName,vehRank.group(1))
 
@@ -135,7 +135,7 @@ for fileName in sqmFiles:
                                     outputString += "\t_currentGroup selectLeader {0};\n".format(vehVarName)
 
                                 #If the unit has an init field it can be imported straight into the file
-                                vehInit = re.search(r"init=(\".*\");",currentItem,re.I)
+                                vehInit = re.search(r"init=(\".+\");",currentItem,re.I)
                                 if vehInit:
                                     outputString += "\t{0} setVehicleInit {1};\n".format(vehVarName,vehInit.group(1))
 
