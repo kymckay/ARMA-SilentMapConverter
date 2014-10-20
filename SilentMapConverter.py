@@ -121,6 +121,11 @@ for fileName in sqmFiles:
                                 wpFormation = re.search(r"formation=(\".+\");",currentItem,re.I)
                                 if wpFormation:
                                     outputString += "\t_currentWaypoint setWaypointFormation {0};\n".format(wpFormation.group(1))
+
+                                #Completion radius only needed if present
+                                wpRadius = re.search(r"completitionRadius=(\d+\.?\d*);",currentItem,re.I)
+                                if wpRadius:
+                                    outputString += "\t_currentWaypoint setWaypointCompletionRadius {0};\n".format(wpRadius.group(1))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
