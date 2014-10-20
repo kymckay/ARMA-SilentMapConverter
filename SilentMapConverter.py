@@ -109,13 +109,18 @@ for fileName in sqmFiles:
 
                                 #Waypoint behaviour is listed as 'combat', not needed if not present
                                 wpBehvaiour = re.search(r"combat=(\".+\");",currentItem,re.I)
-                                if wpCombatMode:
+                                if wpBehvaiour:
                                     outputString += "\t_currentWaypoint setWaypointBehaviour {0};\n".format(wpBehvaiour.group(1))
 
                                 #Waypoint speed is not needed if not present
                                 wpSpeed = re.search(r"speed=(\".+\");",currentItem,re.I)
-                                if wpCombatMode:
+                                if wpSpeed:
                                     outputString += "\t_currentWaypoint setWaypointSpeed {0};\n".format(wpSpeed.group(1))
+
+                                #Waypoint formation is not needed if not present
+                                wpFormation = re.search(r"formation=(\".+\");",currentItem,re.I)
+                                if wpFormation:
+                                    outputString += "\t_currentWaypoint setWaypointFormation {0};\n".format(wpFormation.group(1))
                             else:
                                 #Condition and probability of presence should be checked first before unit is created
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
