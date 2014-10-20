@@ -55,7 +55,7 @@ for fileName in sqmFiles:
                                 groupSide = "resistance"
                             else:
                                 groupSide = groupSide.group(1).lower()
-                            outputString += "\n\n_currentGroup = createGroup {0};".format(groupSide)
+                            outputString += "\n_currentGroup = createGroup {0};\n".format(groupSide)
 
                         #Units and waypoints can now be created
                         for currentItem in itemsArray:
@@ -74,11 +74,11 @@ for fileName in sqmFiles:
                                 vehPresence = re.search(r"presenceCondition=\"(.+)\";",currentItem,re.I)
                                 vehProbability = re.search(r"presence=(\d\.?\d*);",currentItem,re.I)
                                 if vehPresence and vehProbability:
-                                    outputString += "\nif (({0}) and (random 1 < {1})) then {2}\n\t".format(vehPresence.group(1),vehProbability.group(1)[:4],"{")
+                                    outputString += "if (({0}) and (random 1 < {1})) then {2}\n\t".format(vehPresence.group(1),vehProbability.group(1)[:4],"{")
                                 elif vehPresence and not vehPresence:
-                                    outputString += "\nif ({0}) then {1}\n\t".format(vehPresence.group(1),"{")
+                                    outputString += "if ({0}) then {1}\n\t".format(vehPresence.group(1),"{")
                                 elif vehProbability and not vehPresence:
-                                    outputString += "\nif (random 1 < {0}) then {1}\n\t".format(vehProbability.group(1)[:4],"{")
+                                    outputString += "if (random 1 < {0}) then {1}\n\t".format(vehProbability.group(1)[:4],"{")
 
                                 #Use variable name if it exists - instead of a local variable
                                 vehVarName = re.search(r"text=\"(.+)\";",currentItem,re.I)
@@ -100,22 +100,16 @@ for fileName in sqmFiles:
                                     vehSpecial = vehSpecial.group(1)
                                 else:
                                     vehSpecial = "\"FORM\""
-                                if not (vehPresence or vehProbability):
-                                    outputString += "\n"
                                 outputString += "{0} = _currentGroup createUnit [{1}];\n".format(vehVarName,",".join([vehName,itemPosition,"[]",itemRadius,vehSpecial]))
 
                                 #Vehicles won't work with createUnit so this workaround is needed
-                                for appendString in ["if !(alive {0}) then {1}\n".format(vehVarName,"{"),"\t{0} = createVehicle [{1}];\n".format(vehVarName,",".join([vehName,itemPosition,"[]",itemRadius,vehSpecial])),"\t[{0},_currentGroup] call BIS_fnc_spawnCrew;\n".format(vehVarName),"};\n"]:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
+                                for appendString in ["\tif !(alive {0}) then {1}\n".format(vehVarName,"{"),"\t\t{0} = createVehicle [{1}];\n".format(vehVarName,",".join([vehName,itemPosition,"[]",itemRadius,vehSpecial])),"\t\t[{0},_currentGroup] call BIS_fnc_spawnCrew;\n".format(vehVarName),"\t};\n"]:
                                     outputString += appendString
 
                                 #Set unit direction if necessary
                                 vehDir = re.search(r"azimut=(\d+\.?\d*);",currentItem,re.I)
                                 if vehDir:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setDir {1};\n".format(vehVarName,vehDir.group(1))
+                                    outputString += "\t{0} setDir {1};\n".format(vehVarName,vehDir.group(1))
 
                                 #Set health, fuel, skill and ammo only if necessary
                                 vehHealth = re.search(r"health=(\d+\.?\d*);",currentItem,re.I)
@@ -123,41 +117,27 @@ for fileName in sqmFiles:
                                 vehSkill = re.search(r"skill=(\d+\.?\d*);",currentItem,re.I)
                                 vehAmmo = re.search(r"ammo=(\d+\.?\d*);",currentItem,re.I)
                                 if vehHealth:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setDamage {1};\n".format(vehVarName,str(1 - float(vehHealth.group(1)))[:4])
+                                    outputString += "\t{0} setDamage {1};\n".format(vehVarName,str(1 - float(vehHealth.group(1)))[:4])
                                 if vehFuel:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setFuel {1};\n".format(vehVarName,vehFuel.group(1)[:4])
+                                    outputString += "\t{0} setFuel {1};\n".format(vehVarName,vehFuel.group(1)[:4])
                                 if vehSkill.group(1) != "0.60000002":
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setSkill {1};\n".format(vehVarName,vehSkill.group(1)[:4])
+                                    outputString += "\t{0} setSkill {1};\n".format(vehVarName,vehSkill.group(1)[:4])
                                 if vehAmmo:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setVehicleAmmo {1};\n".format(vehVarName,vehAmmo.group(1)[:4])
+                                    outputString += "\t{0} setVehicleAmmo {1};\n".format(vehVarName,vehAmmo.group(1)[:4])
 
                                 #Rank should be set to preserve chain of command + ratings
                                 vehRank = re.search(r"rank=(\".*\");",currentItem,re.I)
                                 if vehRank:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setRank {1};\n".format(vehVarName,vehRank.group(1))
+                                    outputString += "\t{0} setRank {1};\n".format(vehVarName,vehRank.group(1))
 
                                 #If the unit is the leader of the group then it should be scripted to make sure
                                 if re.search(r"leader=1;",currentItem,re.I):
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "_currentGroup selectLeader {0};\n".format(vehVarName)
+                                    outputString += "\t_currentGroup selectLeader {0};\n".format(vehVarName)
 
                                 #If the unit has an init field it can be imported straight into the file
                                 vehInit = re.search(r"init=(\".*\");",currentItem,re.I)
                                 if vehInit:
-                                    if vehPresence or vehProbability:
-                                        outputString += "\t"
-                                    outputString += "{0} setVehicleInit {1};\n".format(vehVarName,vehInit.group(1))
+                                    outputString += "\t{0} setVehicleInit {1};\n".format(vehVarName,vehInit.group(1))
 
                                 #If any condition of presence is present then the if statement must be closed
                                 if vehPresence or vehProbability:
