@@ -13,10 +13,14 @@ versionNum = 1.0
 #Import needed libraries
 import os
 import re
+import sys
 
 #Path to .sqm files required for reading
 #Mission files should be in same directroy as script
-scriptDirectory = os.path.dirname(os.path.realpath(__file__))
+if hasattr(sys, 'frozen'):
+    scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0])) #For compilation - sys.frozen only exists in the .exe
+else:
+    scriptDirectory = os.path.dirname(os.path.realpath(__file__)) #For testing in script form
 sqmFiles = []
 for fileName in os.listdir(scriptDirectory):
     if fileName[len(fileName)-4:] == ".sqm":
