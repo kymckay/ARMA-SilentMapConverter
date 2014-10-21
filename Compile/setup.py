@@ -10,4 +10,7 @@ setup(
             "icon_resources": [(0, "icon.ico")]
             }],
     zipfile = None,
+    version = "1.0.0",
+    name = "SilentMapConverter",
+    description = "SQM files in the current folder become SQF files",
 )
