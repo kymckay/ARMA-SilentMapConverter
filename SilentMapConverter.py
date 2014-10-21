@@ -11,9 +11,7 @@
 versionNum = 1.0
 
 #Import needed libraries
-import os
-import re
-import sys
+import os, re, sys
 
 #Path to .sqm files required for reading
 #Mission files should be in same directroy as script
