@@ -1,4 +1,4 @@
-Arma2-SilentMapConverter
+SilentMapConverter
 ========================
 
 ***Overview***  
