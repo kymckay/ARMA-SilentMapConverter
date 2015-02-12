@@ -13,7 +13,7 @@ versionNum = "2.0.0"
 #Import needed libraries
 import os, re, sys
 
-#Define globally used variables
+#Define side dictionary used to translate config to code
 sideDict = {
     "EAST": "east",
     "WEST": "west",
@@ -38,10 +38,17 @@ def malformed(reason):
 def procGroups(groupsList):
     returnString = ""
     for group in groupsList:
-        #Extract the info from the group
+        #Extract index of the group
         groupIndex = group.group(1)
-        groupSide = reGroupSide.search(group.group(0))
-        groupSide = sideDict[groupSide.group(1)]
+
+        #Extract and verify group side
+        groupSide = reGroupSide.search(group.group(0)).group(1)
+        if groupSide in sideDict:
+            groupSide = sideDict[groupSide]
+        else:
+            return malformed("group {0} uses unknown side {1}".format(groupIndex,groupSide))
+
+        #Extract the units and waypoints subclasses of the group
         groupSections = list(reGroupTop.finditer(group.group(0)))
         if groupSections:
             groupUnits = []
@@ -54,7 +61,7 @@ def procGroups(groupsList):
         else:
             return malformed("group {0} has no subclasses".format(groupIndex))
 
-        #Process the units of the group
+        #Process the units of the group, verify that it has any
         if groupUnits:
             returnString += "_group{0} = createGroup {1}\n".format(groupIndex,groupSide)
             #for unit in groupUnits:
@@ -83,7 +90,7 @@ def procTriggers(triggersList):
 #-------------------------------------------------------------------------------
 #Main
 
-#Retrieve directory program is ran in
+#Retrieve directory the program is ran in
 if hasattr(sys, 'frozen'):
     #For use as an executable - sys.frozen only exists in the .exe
     scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -106,24 +113,35 @@ for fileName in sqmFiles:
 
         #Open the file this way so that it closes automatically when done
         with open(missionPath) as missionFile:
-            # Extract the top-level sections of mission.sqm, returns an iterator of match objects so cast to list
-            mainSections = list(reTopLevel.finditer(missionFile.read()))
+            fileContents = missionFile.read()
+            mainSections = []
+            #Verify that the number of braces match
+            if len(re.findall(r"{",fileContents)) == len(re.findall(r"}",fileContents)):
+                # Extract the top-level sections of mission.sqm, returns an iterator of match objects so cast to list
+                mainSections = list(reTopLevel.finditer(fileContents))
+            else:
+                outputCode += malformed("number of opening and closing braces isn't equal")
+            #Clear file contents variable (unrequired from here)
+            fileContents = None
 
         groupsCode = "// ---Groups---\n"
         vehiclesCode = "// ---Vehicles---\n"
         markersCode = "// ---Markers---\n"
         triggersCode = "// ---Triggers---\n"
-        for currentSection in mainSections:
-            #All sections use the same classname system
-            sectionList = list(reSubLevel.finditer(currentSection.group(0)))
-            if currentSection.group(1) == "Groups":
-                groupsCode += procGroups(sectionList)
-            elif currentSection.group(1) == "Vehicles":
-                vehiclesCode += procVehicles(sectionList)
-            elif currentSection.group(1) == "Markers":
-                markersCode += procMarkers(sectionList)
-            elif currentSection.group(1) == "Sensors":
-                triggersCode += procTriggers(sectionList)
+        if mainSections:
+            for currentSection in mainSections:
+                #All sections use the same classname system
+                sectionList = list(reSubLevel.finditer(currentSection.group(0)))
+                if currentSection.group(1) == "Groups":
+                    groupsCode += procGroups(sectionList)
+                elif currentSection.group(1) == "Vehicles":
+                    vehiclesCode += procVehicles(sectionList)
+                elif currentSection.group(1) == "Markers":
+                    markersCode += procMarkers(sectionList)
+                elif currentSection.group(1) == "Sensors":
+                    triggersCode += procTriggers(sectionList)
+        else:
+            outputCode += malformed("doesn't contain any data to convert")
 
         #Combine sqf code from each section in specific desirable order
         outputCode += markersCode + vehiclesCode + groupsCode + triggersCode
