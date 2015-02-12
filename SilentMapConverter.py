@@ -45,10 +45,9 @@ sqmFiles = []
 for fileName in os.listdir(scriptDirectory):
     if fileName[len(fileName)-4:] == ".sqm":
         sqmFiles.append(fileName)
-scriptDirectory += "\\"
 
 for fileName in sqmFiles:
-    missionPath = scriptDirectory + fileName
+    missionPath = scriptDirectory + "\\" + fileName
     #Make sure the file exists before opening to avoid errors
     if os.path.isfile(missionPath):
         # Initialise the output code with file header
@@ -60,6 +59,7 @@ for fileName in sqmFiles:
             mainSections = list(re.finditer(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t};",missionFile.read(),re.I|re.M|re.S))
 
         for currentSection in mainSections:
+            #All sections use the same classname system
             sectionList = list(re.finditer(r"^\t\tclass\sItem(\d+).+?^\t\t};",currentSection.group(0),re.I|re.M|re.S))
             if currentSection.group(1) == "Groups":
                 groupsCode = procGroups(sectionList)
@@ -74,6 +74,6 @@ for fileName in sqmFiles:
         outputCode += markersCode + vehiclesCode + groupsCode + triggersCode
 
         #The written file should be created/overwritten in the same directory
-        outputPath = scriptDirectory + fileName[:len(fileName)-1] + "f"
+        outputPath = scriptDirectory + "\\" + fileName[:len(fileName)-1] + "f"
         with open(outputPath, 'w') as outputFile:
             outputFile.write(outputCode)
