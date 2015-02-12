@@ -14,8 +14,20 @@ versionNum = "2.0.0"
 import os, re, sys
 
 #Define functions for later
-def procGroup(groupString):
+def procGroups(groupsList):
     returnString = "// ---Groups---\n"
+    return returnString
+
+def procVehicles(vehiclesList):
+    returnString = "// ---Vehicles---\n"
+    return returnString
+
+def procMarkers(markersList):
+    returnString = "// ---Markers---\n"
+    return returnString
+
+def procTriggers(triggersList):
+    returnString = "// ---Triggers---\n"
     return returnString
 #-------------------------------------------------------------------------------
 #Main
@@ -39,28 +51,29 @@ for fileName in sqmFiles:
     missionPath = scriptDirectory + fileName
     #Make sure the file exists before opening to avoid errors
     if os.path.isfile(missionPath):
-        # Initialise the output string with file header
-        outputString = "// Created by SMC v{0}\nprivate [\"_currentGroup\",\"_currentUnit\",\"_currentWaypoint\"];\n\n".format(versionNum)
+        # Initialise the output code with file header
+        outputCode = "// Created by SMC v{0}\nprivate [\"_currentGroup\",\"_currentUnit\",\"_currentWaypoint\"];\n\n".format(versionNum)
 
         #Open the file this way so that it closes automatically when done
         with open(missionPath) as missionFile:
-            # Extract the top-level sections of mission.sqm, returns an iterator of match objects
-            mainSections = re.finditer(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t};",missionFile.read(),re.I|re.M|re.S)
-
-        # Convert interator into list for ease of use
-        mainSections = list(mainSections)
+            # Extract the top-level sections of mission.sqm, returns an iterator of match objects so cast to list
+            mainSections = list(re.finditer(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t};",missionFile.read(),re.I|re.M|re.S))
 
         for currentSection in mainSections:
+            sectionList = list(re.finditer(r"^\t\tclass\sItem(\d+).+?^\t\t};",currentSection.group(0),re.I|re.M|re.S))
             if currentSection.group(1) == "Groups":
-                do stuff
+                groupsCode = procGroups(sectionList)
             elif currentSection.group(1) == "Vehicles":
-                do stuff
+                vehiclesCode = procVehicles(sectionList)
             elif currentSection.group(1) == "Markers":
-                do stuff
+                markersCode = procMarkers(sectionList)
             elif currentSection.group(1) == "Sensors":
-                do stuff
+                triggersCode = procTriggers(sectionList)
+
+        #Combine sqf code from each section in specific desirable order
+        outputCode += markersCode + vehiclesCode + groupsCode + triggersCode
 
         #The written file should be created/overwritten in the same directory
         outputPath = scriptDirectory + fileName[:len(fileName)-1] + "f"
         with open(outputPath, 'w') as outputFile:
-            outputFile.write(outputString)
+            outputFile.write(outputCode)
