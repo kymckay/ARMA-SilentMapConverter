@@ -13,21 +13,72 @@ versionNum = "2.0.0"
 #Import needed libraries
 import os, re, sys
 
-#Define functions for later
+#Define globally used variables
+sideDict = {
+    "EAST": "east",
+    "WEST": "west",
+    "GUER": "independent",
+    "CIV": "civilian",
+    "LOGIC": "sideLogic"
+}
+
+#Compile commonly used regex objects
+reTopLevel = re.compile(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t\};",re.I|re.M|re.S)
+reSubLevel = re.compile(r"^\t\tclass\sItem(\d+).+?^\t\t\};",re.I|re.M|re.S)
+
+reGroupSide = re.compile(r"^\t{3}side=\"(.+)\";",re.I|re.M)
+reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
+reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
+
+#Define common function for reporting malformed sqm file
+def malformed(reason):
+    return "// Error: SQM file is malformed, {0}\n".format(reason)
+
+#Define processing functions for later (they all take a list of match objects)
 def procGroups(groupsList):
-    returnString = "// ---Groups---\n"
+    returnString = ""
+    for group in groupsList:
+        #Extract the info from the group
+        groupIndex = group.group(1)
+        groupSide = reGroupSide.search(group.group(0))
+        groupSide = sideDict[groupSide.group(1)]
+        groupSections = list(reGroupTop.finditer(group.group(0)))
+        if groupSections:
+            groupUnits = []
+            groupWaypoints = []
+            for section in groupSections:
+                if section.group(1) == "Vehicles":
+                    groupUnits = list(reGroupSub.finditer(section.group(0)))
+                elif section.group(1) == "Waypoints":
+                    groupWaypoints = list(reGroupSub.finditer(section.group(0)))
+        else:
+            return malformed("group {0} has no subclasses".format(groupIndex))
+
+        #Process the units of the group
+        if groupUnits:
+            returnString += "_group{0} = createGroup {1}\n".format(groupIndex,groupSide)
+            #for unit in groupUnits:
+
+        else:
+            return malformed("group {0} has no units".format(groupIndex))
+
+        #Process the waypoints of the group
+        '''if groupWaypoints:
+            for unit in groupUnits:
+                unitPos ='''
+
     return returnString
 
 def procVehicles(vehiclesList):
-    returnString = "// ---Vehicles---\n"
+    returnString = ""
     return returnString
 
 def procMarkers(markersList):
-    returnString = "// ---Markers---\n"
+    returnString = ""
     return returnString
 
 def procTriggers(triggersList):
-    returnString = "// ---Triggers---\n"
+    returnString = ""
     return returnString
 #-------------------------------------------------------------------------------
 #Main
@@ -51,24 +102,28 @@ for fileName in sqmFiles:
     #Make sure the file exists before opening to avoid errors
     if os.path.isfile(missionPath):
         # Initialise the output code with file header
-        outputCode = "// Created by SMC v{0}\nprivate [\"_currentGroup\",\"_currentUnit\",\"_currentWaypoint\"];\n\n".format(versionNum)
+        outputCode = "// Created by SMC v{0}\n\n".format(versionNum)
 
         #Open the file this way so that it closes automatically when done
         with open(missionPath) as missionFile:
             # Extract the top-level sections of mission.sqm, returns an iterator of match objects so cast to list
-            mainSections = list(re.finditer(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t};",missionFile.read(),re.I|re.M|re.S))
+            mainSections = list(reTopLevel.finditer(missionFile.read()))
 
+        groupsCode = "// ---Groups---\n"
+        vehiclesCode = "// ---Vehicles---\n"
+        markersCode = "// ---Markers---\n"
+        triggersCode = "// ---Triggers---\n"
         for currentSection in mainSections:
             #All sections use the same classname system
-            sectionList = list(re.finditer(r"^\t\tclass\sItem(\d+).+?^\t\t};",currentSection.group(0),re.I|re.M|re.S))
+            sectionList = list(reSubLevel.finditer(currentSection.group(0)))
             if currentSection.group(1) == "Groups":
-                groupsCode = procGroups(sectionList)
+                groupsCode += procGroups(sectionList)
             elif currentSection.group(1) == "Vehicles":
-                vehiclesCode = procVehicles(sectionList)
+                vehiclesCode += procVehicles(sectionList)
             elif currentSection.group(1) == "Markers":
-                markersCode = procMarkers(sectionList)
+                markersCode += procMarkers(sectionList)
             elif currentSection.group(1) == "Sensors":
-                triggersCode = procTriggers(sectionList)
+                triggersCode += procTriggers(sectionList)
 
         #Combine sqf code from each section in specific desirable order
         outputCode += markersCode + vehiclesCode + groupsCode + triggersCode
