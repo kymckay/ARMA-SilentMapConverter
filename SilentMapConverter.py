@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        SilentMapConverter
-# Purpose:     Convert arma 2 mission files into an sqf script files
+# Purpose:     Converts arma mission files into sqf script files.
 #
 # Author:      SilentSpike
 #
@@ -13,12 +13,22 @@ versionNum = "2.0.0"
 #Import needed libraries
 import os, re, sys
 
-#Path to .sqm files required for reading
-#Mission files should be in same directroy as script
+#Define functions for later
+def procGroup(groupString):
+    returnString = "// ---Groups---\n"
+    return returnString
+#-------------------------------------------------------------------------------
+#Main
+
+#Retrieve directory program is ran in
 if hasattr(sys, 'frozen'):
-    scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0])) #For compilation - sys.frozen only exists in the .exe
+    #For use as an executable - sys.frozen only exists in the .exe
+    scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0]))
 else:
-    scriptDirectory = os.path.dirname(os.path.realpath(__file__)) #For testing in script form
+    #For use in script form
+    scriptDirectory = os.path.dirname(os.path.realpath(__file__))
+
+#Produce an array of sqm files in the directory
 sqmFiles = []
 for fileName in os.listdir(scriptDirectory):
     if fileName[len(fileName)-4:] == ".sqm":
@@ -41,7 +51,14 @@ for fileName in sqmFiles:
         mainSections = list(mainSections)
 
         for currentSection in mainSections:
-            outputString += currentSection.group(0) + "\n"
+            if currentSection.group(1) == "Groups":
+                do stuff
+            elif currentSection.group(1) == "Vehicles":
+                do stuff
+            elif currentSection.group(1) == "Markers":
+                do stuff
+            elif currentSection.group(1) == "Sensors":
+                do stuff
 
         #The written file should be created/overwritten in the same directory
         outputPath = scriptDirectory + fileName[:len(fileName)-1] + "f"
