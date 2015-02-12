@@ -1,0 +1,6 @@
+# Testing files
+*.sqm
+*.sqf
+
+#Unwanted py2exe folder
+\Compile\build
