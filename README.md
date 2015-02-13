@@ -2,7 +2,7 @@ SilentMapConverter
 ========================
 
 ***Overview***  
-A program used to convert .sqm files into .sqf files for Arma (useful for headless client missions). This is my first programming project which used in order to get comfortable with Python and various programming concepts.
+A program used to convert .sqm files into .sqf files for Arma (useful for headless client missions). This was my first programming project which I used in order to get comfortable with Python and various programming concepts.
 
 ***What it does***  
 When the program is ran, all .sqm files in the same directory will be converted. The output .sqf files will be created in the same directory with the same names respectively.
