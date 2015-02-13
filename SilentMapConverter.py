@@ -95,7 +95,7 @@ def procGroups(groupsList):
                         #Make a list of coordinates as strings
                         unitPos = unitPos.group(1).split(",")
                         #Round all coordinates to 2 DP then convert to string
-                        unitPos = ",".join([str(round(float(i),2)) for i in unitPos])
+                        unitPos = ",".join([str(int(round(float(i)))) for i in unitPos])
                         returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],0,\"\"];\n".format(unitVariable,groupIndex,unitType,unitPos)
                     else:
                         return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
