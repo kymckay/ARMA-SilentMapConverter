@@ -123,13 +123,20 @@ def procGroups(groupsList):
                     else:
                         return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
+                    #Create the unit
                     if unitType:
                         if unitPos:
                             returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
+                            #Vehicles can't be created as units, use BIS func for backwards compatibility
+                            returnCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; [{0},_group{5}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial,groupIndex)
                         else:
                             return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
+
+                    #Must close condition block if present
+                    if unitCond or unitChance:
+                        returnCode += "};\n"
         else:
             return malformed("group {0} has no units".format(groupIndex))
 
