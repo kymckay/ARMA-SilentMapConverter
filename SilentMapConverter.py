@@ -114,7 +114,7 @@ def procGroups(groupsList):
                         returnCode += "if ({0}) then {{\n\t".format(unitCond)
                     elif unitChance:
                         unitChance = str(round(float(unitChance),2))
-                        returnCode += "if (random 1 < {0}) then {{\n\t".format(unitChance)
+                        returnCode += "if (random 1 < {0}) then {{\n".format(unitChance)
 
                     #Determine variable to be used for unit, must have an ID number
                     if unitID:
@@ -126,7 +126,7 @@ def procGroups(groupsList):
                     #Create the unit
                     if unitType:
                         if unitPos:
-                            returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
+                            returnCode += "\t{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
                             #Vehicles can't be created as units, use BIS func for backwards compatibility
                             returnCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; [{0},_group{5}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial,groupIndex)
                         else:
