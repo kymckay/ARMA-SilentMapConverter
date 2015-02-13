@@ -30,6 +30,7 @@ reGroupSide = re.compile(r"^\t{3}side=\"(.+)\";",re.I|re.M)
 reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
 reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
 
+reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
 reUnitID = re.compile(r"id=(\d+)",re.I)
 reUnitVar = re.compile(r"text=\"(.+)\";",re.I)
 reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
@@ -86,29 +87,31 @@ def procGroups(groupsList):
                 unitIndex = unit.group(1)
                 unit = unit.group(0)
 
-                #Required unit values
-                unitID = matchValue(reUnitID.search(unit),[])
-                unitType = matchValue(reUnitType.search(unit),[])
-                unitPos = matchValue(reUnitPos.search(unit),[])
+                #Player units should be skipped
+                if not reUnitPlayer.search(unit):
+                    #Required unit values
+                    unitID = matchValue(reUnitID.search(unit),[])
+                    unitType = matchValue(reUnitType.search(unit),[])
+                    unitPos = matchValue(reUnitPos.search(unit),[])
 
-                #Optional unit values
-                unitRadius = matchValue(reUnitRadius.search(unit),"0")
-                unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
+                    #Optional unit values
+                    unitRadius = matchValue(reUnitRadius.search(unit),"0")
+                    unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
 
-                #Determine variable to be used for unit, must have an ID number
-                if unitID:
-                    unitVariable = reUnitVar.search(unit)
-                    unitVariable = matchValue(unitVariable,"_unit{0}".format(unitID))
-                else:
-                    return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
-
-                if unitType:
-                    if unitPos:
-                        returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
+                    #Determine variable to be used for unit, must have an ID number
+                    if unitID:
+                        unitVariable = reUnitVar.search(unit)
+                        unitVariable = matchValue(unitVariable,"_unit{0}".format(unitID))
                     else:
-                        return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
-                else:
-                    return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
+                        return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
+
+                    if unitType:
+                        if unitPos:
+                            returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
+                        else:
+                            return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
+                    else:
+                        return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
         else:
             return malformed("group {0} has no units".format(groupIndex))
 
