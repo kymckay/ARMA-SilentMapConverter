@@ -35,6 +35,8 @@ reUnitID = re.compile(r"id=(\d+)",re.I)
 reUnitVar = re.compile(r"text=\"(.+)\";",re.I)
 reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
 reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
+reUnitCond = re.compile(r"presenceCondition=\"(.+)\";",re.I)
+reUnitChance = re.compile(r"presence=(\d(\.\d+)?);",re.I)
 reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
 reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
 
@@ -90,13 +92,29 @@ def procGroups(groupsList):
                 #Player units should be skipped
                 if not reUnitPlayer.search(unit):
                     #Required unit values
-                    unitID = matchValue(reUnitID.search(unit),[])
-                    unitType = matchValue(reUnitType.search(unit),[])
-                    unitPos = matchValue(reUnitPos.search(unit),[])
+                    unitID = matchValue(reUnitID.search(unit),"")
+                    unitType = matchValue(reUnitType.search(unit),"")
+                    unitPos = matchValue(reUnitPos.search(unit),"")
 
                     #Optional unit values
+                    unitCond = matchValue(reUnitCond.search(unit),"")
+                    unitChance = matchValue(reUnitChance.search(unit),"")
                     unitRadius = matchValue(reUnitRadius.search(unit),"0")
                     unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
+
+                    #Build the unit presence condition
+                    if unitCond and unitChance:
+                        #Only useful to 2 DP
+                        unitChance = str(round(float(unitChance),2))
+                        #Strings all the way down
+                        unitCond = unitCond.replace("\"\"","\"")
+                        returnCode += "if (({0}) && (random 1 < {1})) then {{\n\t".format(unitCond,unitChance)
+                    elif unitCond:
+                        unitCond = unitCond.replace("\"\"","\"")
+                        returnCode += "if ({0}) then {{\n\t".format(unitCond)
+                    elif unitChance:
+                        unitChance = str(round(float(unitChance),2))
+                        returnCode += "if (random 1 < {0}) then {{\n\t".format(unitChance)
 
                     #Determine variable to be used for unit, must have an ID number
                     if unitID:
