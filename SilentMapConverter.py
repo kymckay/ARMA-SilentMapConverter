@@ -32,13 +32,15 @@ reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
 
 reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
 reUnitID = re.compile(r"id=(\d+)",re.I)
-reUnitVar = re.compile(r"text=\"(.+)\";",re.I)
+reUnitName = re.compile(r"text=\"(.+)\";",re.I)
 reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
 reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
 reUnitCond = re.compile(r"presenceCondition=\"(.+)\";",re.I)
 reUnitChance = re.compile(r"presence=(\d(\.\d+)?);",re.I)
 reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
 reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
+reUnitDir = re.compile(r"azimut=(\d+(\.\d+)?);",re.I)
+reUnitOff = re.compile(r"offsetY=(\d+(\.\d+)?);",re.I)
 
 #Define common function for reporting malformed sqm file
 def malformed(reason):
@@ -99,6 +101,9 @@ def procGroups(groupsList):
                     #Optional unit values
                     unitCond = matchValue(reUnitCond.search(unit),"")
                     unitChance = matchValue(reUnitChance.search(unit),"")
+                    unitDir = matchValue(reUnitDir.search(unit),"")
+                    unitName = matchValue(reUnitName.search(unit),"")
+                    unitOff = matchValue(reUnitOff.search(unit),"")
                     unitRadius = matchValue(reUnitRadius.search(unit),"0")
                     unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
 
@@ -108,24 +113,34 @@ def procGroups(groupsList):
                         unitChance = str(round(float(unitChance),2))
                         #Strings all the way down
                         unitCond = unitCond.replace("\"\"","\"")
-                        returnCode += "if (({0}) && (random 1 < {1})) then {{\n\t".format(unitCond,unitChance)
+                        returnCode += "if (({0}) && (random 1 < {1})) then {{\n".format(unitCond,unitChance)
                     elif unitCond:
                         unitCond = unitCond.replace("\"\"","\"")
-                        returnCode += "if ({0}) then {{\n\t".format(unitCond)
+                        returnCode += "if ({0}) then {{\n".format(unitCond)
                     elif unitChance:
                         unitChance = str(round(float(unitChance),2))
                         returnCode += "if (random 1 < {0}) then {{\n".format(unitChance)
 
                     #Determine variable to be used for unit, must have an ID number
                     if unitID:
-                        unitVariable = reUnitVar.search(unit)
-                        unitVariable = matchValue(unitVariable,"_unit{0}".format(unitID))
+                        unitVariable = "_unit{0}".format(unitID)
                     else:
                         return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
                     #Create the unit
                     if unitType:
                         if unitPos:
+                            #Z and Y coordinates flipped in SQM, split string
+                            unitPos = unitPos.split(",")
+                            if len(unitPos) == 3:
+                                unitPos.pop(1)
+                                unitPos.append("0")
+                            else:
+                                return malformed("unit {0} in group {1} has invalid position coordinates".format(unitIndex,groupIndex))
+
+                            #Join list back into position string
+                            unitPos = ",".join(unitPos)
+
                             returnCode += "\t{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
                             #Vehicles can't be created as units, use BIS func for backwards compatibility
                             returnCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; [{0},_group{5}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial,groupIndex)
@@ -133,6 +148,23 @@ def procGroups(groupsList):
                             return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
+
+                    #If unit has an editor name then set it here
+                    if unitName:
+                        returnCode += "\t\t{0} = {1};\n".format(unitName,unitVariable)
+                        unitVariable = unitName
+
+                    #Units heading
+                    if unitDir:
+                        returnCode += "\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
+
+                    #Unit's elevation offset (Arma 3)
+                    if unitOff:
+                        unitPos = unitPos.split(",")
+                        unitPos.pop(2)
+                        unitPos.append(unitOff)
+                        unitPos = ",".join(unitPos)
+                        returnCode += "\t\t{0} setPosATL [{1}];\n".format(unitVariable,unitPos)
 
                     #Must close condition block if present
                     if unitCond or unitChance:
