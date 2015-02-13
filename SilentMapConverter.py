@@ -30,17 +30,18 @@ reGroupSide = re.compile(r"^\t{3}side=\"(.+)\";",re.I|re.M)
 reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
 reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
 
-reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
+reUnitChance = re.compile(r"presence=(\d(\.\d+)?);",re.I)
+reUnitCond = re.compile(r"presenceCondition=\"(.+)\";",re.I)
+reUnitDir = re.compile(r"azimut=(\d+(\.\d+)?);",re.I)
 reUnitID = re.compile(r"id=(\d+)",re.I)
 reUnitName = re.compile(r"text=\"(.+)\";",re.I)
-reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
-reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
-reUnitCond = re.compile(r"presenceCondition=\"(.+)\";",re.I)
-reUnitChance = re.compile(r"presence=(\d(\.\d+)?);",re.I)
-reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
-reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
-reUnitDir = re.compile(r"azimut=(\d+(\.\d+)?);",re.I)
 reUnitOff = re.compile(r"offsetY=(\d+(\.\d+)?);",re.I)
+reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
+reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
+reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
+reUnitSkill = re.compile(r"skill=(\d+(\.\d+)?);",re.I)
+reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
+reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
 
 #Define common function for reporting malformed sqm file
 def malformed(reason):
@@ -105,6 +106,7 @@ def procGroups(groupsList):
                     unitName = matchValue(reUnitName.search(unit),"")
                     unitOff = matchValue(reUnitOff.search(unit),"")
                     unitRadius = matchValue(reUnitRadius.search(unit),"0")
+                    unitSkill = matchValue(reUnitSkill.search(unit),"0.60000002")
                     unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
 
                     #Build the unit presence condition
@@ -165,6 +167,10 @@ def procGroups(groupsList):
                         unitPos.append(unitOff)
                         unitPos = ",".join(unitPos)
                         returnCode += "\t\t{0} setPosATL [{1}];\n".format(unitVariable,unitPos)
+
+                    if unitSkill:
+                        if unitSkill != "0.60000002":
+                            returnCode += "\t\t{0} setSkill {1};\n".format(unitVariable,unitSkill)
 
                     #Must close condition block if present
                     if unitCond or unitChance:
