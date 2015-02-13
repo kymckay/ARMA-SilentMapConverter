@@ -31,13 +31,22 @@ reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re
 reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
 
 reUnitID = re.compile(r"id=(\d+)",re.I)
-reUnitVar = re.compile(r"name=\"(.+)\";",re.I)
+reUnitVar = re.compile(r"text=\"(.+)\";",re.I)
 reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
 reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
+reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
+reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
 
 #Define common function for reporting malformed sqm file
 def malformed(reason):
     return "// Error: SQM file is malformed, {0}".format(reason)
+
+#Returns first group of match if match made, otherwise default value
+def matchValue(match,default):
+    if match:
+        return match.group(1)
+    else:
+        return default
 
 #Define processing functions for later (they all take a list of match objects)
 def procGroups(groupsList):
@@ -45,11 +54,11 @@ def procGroups(groupsList):
     for group in groupsList:
         #Extract index of the group
         groupIndex = group.group(1)
+        group = group.group(0)
 
         #Extract and verify group side
-        groupSide = reGroupSide.search(group.group(0))
+        groupSide = matchValue(reGroupSide.search(group),[])
         if groupSide:
-            groupSide = groupSide.group(1)
             if groupSide in sideDict:
                 groupSide = sideDict[groupSide]
             else:
@@ -58,7 +67,7 @@ def procGroups(groupsList):
             return malformed("group {0} has no assigned side".format(groupIndex,groupSide))
 
         #Extract the units and waypoints subclasses of the group
-        groupSections = list(reGroupTop.finditer(group.group(0)))
+        groupSections = list(reGroupTop.finditer(group))
         if groupSections:
             groupUnits = []
             groupWaypoints = []
@@ -75,25 +84,27 @@ def procGroups(groupsList):
             returnCode += "_group{0} = createGroup {1};\n".format(groupIndex,groupSide)
             for unit in groupUnits:
                 unitIndex = unit.group(1)
-                unitID = reUnitID.search(unit.group(0))
-                unitVariable = reUnitVar.search(unit.group(0))
-                unitType = reUnitType.search(unit.group(0))
-                unitPos = reUnitPos.search(unit.group(0))
+                unit = unit.group(0)
+
+                #Required unit values
+                unitID = matchValue(reUnitID.search(unit),[])
+                unitType = matchValue(reUnitType.search(unit),[])
+                unitPos = matchValue(reUnitPos.search(unit),[])
+
+                #Optional unit values
+                unitRadius = matchValue(reUnitRadius.search(unit),"0")
+                unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
 
                 #Determine variable to be used for unit, must have an ID number
                 if unitID:
-                    if unitVariable:
-                        unitVariable = unitVariable.group(1)
-                    else:
-                        unitVariable = "_unit{0}".format(unitID.group(1))
+                    unitVariable = reUnitVar.search(unit)
+                    unitVariable = matchValue(unitVariable,"_unit{0}".format(unitID))
                 else:
                     return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
                 if unitType:
-                    unitType = unitType.group(1)
                     if unitPos:
-                        unitPos = unitPos.group(1)
-                        returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],0,\"\"];\n".format(unitVariable,groupIndex,unitType,unitPos)
+                        returnCode += "{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
                     else:
                         return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                 else:
@@ -141,7 +152,7 @@ for fileName in sqmFiles:
     #Make sure the file exists before opening to avoid errors
     if os.path.isfile(missionPath):
         # Initialise the output code with file header
-        outputCode = "// Created by SMC v{0}\n".format(versionNum)
+        outputCode = "// Created by SMC v{0}\n\n".format(versionNum)
 
         #Open the file this way so that it closes automatically when done
         with open(missionPath) as missionFile:
@@ -182,7 +193,7 @@ for fileName in sqmFiles:
             if re.match(r"//\sError:",code,re.I):
                 outputCode += code + "\n"
             else:
-                validCode += code + "\n"
+                validCode += code
 
         #Combine valid sqf code from each section with output code
         outputCode += validCode
