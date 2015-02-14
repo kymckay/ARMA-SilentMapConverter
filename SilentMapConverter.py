@@ -38,6 +38,7 @@ reUnitName = re.compile(r"text=\"(.+)\";",re.I)
 reUnitOff = re.compile(r"offsetY=(\d+(\.\d+)?);",re.I)
 reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
 reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
+reUnitRank = re.compile(r"rank=\"(.+)\";",re.I)
 reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
 reUnitSkill = re.compile(r"skill=(\d+(\.\d+)?);",re.I)
 reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
@@ -106,6 +107,7 @@ def procGroups(groupsList):
                     unitName = matchValue(reUnitName.search(unit),"")
                     unitOff = matchValue(reUnitOff.search(unit),"")
                     unitRadius = matchValue(reUnitRadius.search(unit),"0")
+                    unitRank = matchValue(reUnitRank.search(unit),"")
                     unitSkill = matchValue(reUnitSkill.search(unit),"0.60000002")
                     unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
 
@@ -156,11 +158,11 @@ def procGroups(groupsList):
                         returnCode += "\t\t{0} = {1};\n".format(unitName,unitVariable)
                         unitVariable = unitName
 
-                    #Units heading
+                    #Unit heading
                     if unitDir:
                         returnCode += "\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
 
-                    #Unit's elevation offset (Arma 3)
+                    #Unit elevation offset (Arma 3)
                     if unitOff:
                         unitPos = unitPos.split(",")
                         unitPos.pop(2)
@@ -168,9 +170,15 @@ def procGroups(groupsList):
                         unitPos = ",".join(unitPos)
                         returnCode += "\t\t{0} setPosATL [{1}];\n".format(unitVariable,unitPos)
 
+                    #Unit skill
                     if unitSkill:
                         if unitSkill != "0.60000002":
                             returnCode += "\t\t{0} setSkill {1};\n".format(unitVariable,unitSkill)
+
+                    #Unit rank
+                    if unitRank:
+                        unitRank = unitRank.upper()
+                        returnCode += "\t\t{0} setRank \"{1}\";\n".format(unitVariable,unitRank)
 
                     #Must close condition block if present
                     if unitCond or unitChance:
