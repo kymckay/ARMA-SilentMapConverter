@@ -302,6 +302,43 @@ def procVehicles(vehiclesList):
             else:
                 return malformed("vehicle {0} has no classname".format(vehIndex))
 
+            #Vehicle heading
+            if vehDir:
+                returnCode += "\t\t{0} setDir {1};\n".format(vehVariable,vehDir)
+
+            #Vehicle elevation offset (Arma 3)
+            if vehOff:
+                vehPos = vehPos.split(",")
+                vehPos.pop(2)
+                vehPos.append(vehOff)
+                vehPos = ",".join(vehPos)
+                returnCode += "\t\t{0} setPosATL [{1}];\n".format(vehVariable,vehPos)
+
+            #Vehicle lock
+            if vehLock:
+                vehLock = vehLock.upper()
+                returnCode += "\t\t{0} setVehicleLock \"{1}\";\n".format(vehVariable,vehLock)
+
+            #Vehicle fuel
+            if vehFuel:
+                returnCode += "\t\t{0} setFuel {1};\n".format(vehVariable,vehFuel)
+            #Vehicle ammo
+            if vehAmmo:
+                returnCode += "\t\t{0} setVehicleAmmo {1};\n".format(vehVariable,vehAmmo)
+            #Vehicle health
+            if vehHP:
+                vehHP = 1 - float(vehHP)
+                returnCode += "\t\t{0} setDamage {1};\n".format(vehVariable,vehHP)
+
+            #Run init lines inline
+            if vehInit:
+                #Strings all the way down
+                vehInit = vehInit.replace("\"\"","\"")
+                vehInit = vehInit.replace("this",vehVariable)
+                if vehInit[len(vehInit) - 1] != ";":
+                    vehInit = vehInit + ";"
+                returnCode += "\t\t{0}\n".format(vehInit)
+
             #Must close condition block if present
             if vehCond or vehChance:
                 returnCode += "};\n"
