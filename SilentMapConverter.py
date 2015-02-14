@@ -244,6 +244,69 @@ def procVehicles(vehiclesList):
         vehIndex = veh.group(1)
         veh = veh.group(0)
 
+        vehDesc = matchValue(1,"description",veh,"")
+        if vehDesc != "!SMC":
+            #Required vehicle values
+            vehID = matchValue(0,"id",veh,"")
+            vehType = matchValue(1,"vehicle",veh,"")
+            vehPos = matchValue(2,"position",veh,"")
+
+            #Optional vehicle values
+            vehAmmo = matchValue(0,"ammo",veh,"")
+            vehCond = matchValue(1,"presenceCondition",veh,"")
+            vehChance = matchValue(0,"presence",veh,"")
+            vehDir = matchValue(0,"azimut",veh,"")
+            vehFuel = matchValue(0,"fuel",veh,"")
+            vehHP = matchValue(0,"health",veh,"")
+            vehInit = matchValue(1,"init",veh,"")
+            vehLock = matchValue(1,"lock",veh,"")
+            vehOff = matchValue(0,"offsetY",veh,"")
+            vehRadius = matchValue(0,"placement",veh,"0")
+            vehSpecial = matchValue(1,"special",veh,"FORM")
+
+            #Build the vehicle presence condition
+            if vehCond and vehChance:
+                #Only useful to 2 DP
+                vehChance = str(round(float(vehChance),2))
+                #Strings all the way down
+                vehCond = vehCond.replace("\"\"","\"")
+                returnCode += "if (({0}) && (random 1 < {1})) then {{\n".format(vehCond,vehChance)
+            elif vehCond:
+                vehCond = vehCond.replace("\"\"","\"")
+                returnCode += "if ({0}) then {{\n".format(vehCond)
+            elif vehChance:
+                vehChance = str(round(float(vehChance),2))
+                returnCode += "if (random 1 < {0}) then {{\n".format(vehChance)
+
+            #Determine variable to be used for vehicle, must have an ID number
+            if vehID:
+                vehVariable = matchValue(1,"text",veh,"_veh{0}".format(vehID))
+            else:
+                return malformed("vehicle {0} has no id number".format(vehIndex))
+
+            #Create the vehicle
+            if vehType:
+                if vehPos:
+                    #Z and Y coordinates flipped in SQM, split string
+                    vehPos = vehPos.split(",")
+                    if len(vehPos) == 3:
+                        vehPos.append(vehPos.pop(1))
+                    else:
+                        return malformed("vehicle {0} has invalid position coordinates".format(vehIndex))
+
+                    #Join list back into position string
+                    vehPos = ",".join(vehPos)
+
+                    returnCode += "\t{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"];\n".format(vehVariable,vehType,vehPos,vehRadius,vehSpecial)
+                else:
+                    return malformed("vehicle {0} has no position".format(vehIndex))
+            else:
+                return malformed("vehicle {0} has no classname".format(vehIndex))
+
+            #Must close condition block if present
+            if vehCond or vehChance:
+                returnCode += "};\n"
+
     return returnCode
 
 def procMarkers(markersList):
