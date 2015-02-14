@@ -166,7 +166,7 @@ def procGroups(groupsList):
 
                     #Unit syncID (assign standardised var for synchronization)
                     if unitSyncID:
-                        returnCode += "\t\t_sync{0} = {1};\n".format(unitSyncID,unitVariable)
+                        returnCode += "\t\tSMC_sync{0} = {1};\n".format(unitSyncID,unitVariable)
                         #Store syncID if created (can check that it exists)
                         syncList(unitSyncID)
 
@@ -177,7 +177,7 @@ def procGroups(groupsList):
                             #Build list of IDs that have been created earlier
                             for sync in unitSyncs:
                                 if sync in syncList(""):
-                                    sync = "_sync{0}".format(sync)
+                                    sync = "SMC_sync{0}".format(sync)
                                     validSyncs.append(sync)
                             if validSyncs:
                                 validSyncs = ",".join(validSyncs)
