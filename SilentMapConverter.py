@@ -34,6 +34,7 @@ reUnitChance = re.compile(r"presence=(\d(\.\d+)?);",re.I)
 reUnitCond = re.compile(r"presenceCondition=\"(.+)\";",re.I)
 reUnitDir = re.compile(r"azimut=(\d+(\.\d+)?);",re.I)
 reUnitID = re.compile(r"id=(\d+)",re.I)
+reUnitInit = re.compile(r"init=\"(.+)\";",re.I)
 reUnitName = re.compile(r"text=\"(.+)\";",re.I)
 reUnitOff = re.compile(r"offsetY=(\d+(\.\d+)?);",re.I)
 reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
@@ -104,6 +105,7 @@ def procGroups(groupsList):
                     unitCond = matchValue(reUnitCond.search(unit),"")
                     unitChance = matchValue(reUnitChance.search(unit),"")
                     unitDir = matchValue(reUnitDir.search(unit),"")
+                    unitInit = matchValue(reUnitInit.search(unit),"")
                     unitName = matchValue(reUnitName.search(unit),"")
                     unitOff = matchValue(reUnitOff.search(unit),"")
                     unitRadius = matchValue(reUnitRadius.search(unit),"0")
@@ -179,6 +181,15 @@ def procGroups(groupsList):
                     if unitRank:
                         unitRank = unitRank.upper()
                         returnCode += "\t\t{0} setRank \"{1}\";\n".format(unitVariable,unitRank)
+
+                    #Run init lines inline
+                    if unitInit:
+                        #Strings all the way down
+                        unitInit = unitInit.replace("\"\"","\"")
+                        unitInit = unitInit.replace("this",unitVariable)
+                        if unitInit[len(unitInit) - 1] != ";":
+                            unitInit = unitInit + ";"
+                        returnCode += "\t\t{0}\n".format(unitInit)
 
                     #Must close condition block if present
                     if unitCond or unitChance:
