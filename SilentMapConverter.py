@@ -56,6 +56,7 @@ def matchValue(valueType,value,item,default):
 #Define processing functions for later (they all take a list of match objects)
 def procGroups(groupsList):
     returnCode = "// ---Groups---\n"
+    validSyncIDs = []
     for group in groupsList:
         #Extract index of the group
         groupIndex = group.group(1)
@@ -112,6 +113,8 @@ def procGroups(groupsList):
                     unitRank = matchValue(1,"rank",unit,"")
                     unitSkill = matchValue(0,"skill",unit,"0.60000002")
                     unitSpecial = matchValue(1,"special",unit,"FORM")
+                    unitSyncID = matchValue(0,"syncId",unit,"")
+                    unitSyncs = matchValue(2,"synchronizations",unit,"")
 
                     #Build the unit presence condition
                     if unitCond and unitChance:
@@ -153,6 +156,26 @@ def procGroups(groupsList):
                             return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
+
+                    #Unit syncID (assign standardised var for synchronization)
+                    if unitSyncID:
+                        returnCode += "\t\t_sync{0} = {1};\n".format(unitSyncID,unitVariable)
+                        #Store syncID if created (can check that it exists)
+                        validSyncIDs.append(unitSyncID)
+
+                        #Syncronize unit, only possible with syncID
+                        if unitSyncs:
+                            unitSyncs = unitSyncs.split(",")
+                            validSyncs = []
+                            #Build list of IDs that are created earlier
+                            for sync in unitSyncs:
+                                if int(float(sync)) < int(float(unitSyncID)):
+                                    if sync in validSyncIDs:
+                                        sync = "_sync{0}".format(sync)
+                                        validSyncs.append(sync)
+                            if validSyncs:
+                                validSyncs = ",".join(validSyncs)
+                                returnCode += "\t\t{0} synchronizeObjectsAdd [{1}]\n".format(unitVariable,validSyncs)
 
                     #Unit heading
                     if unitDir:
