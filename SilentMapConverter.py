@@ -85,15 +85,17 @@ def procGroups(groupsList):
         else:
             return malformed("group {0} has no subclasses".format(groupIndex))
 
-        #Process the units of the group, verify that it has any
-        if groupUnits:
+        #Process the units of the group if applicable
+        if groupUnits and (groupSide != "sideLogic"):
             returnCode += "_group{0} = createGroup {1};\n".format(groupIndex,groupSide)
             for unit in groupUnits:
                 unitIndex = unit.group(1)
                 unit = unit.group(0)
 
-                #Player units should be skipped
-                if not matchValue(1,"player",unit,""):
+                unitPlayer = matchValue(1,"player",unit,"")
+                unitDesc = matchValue(1,"description",unit,"")
+                #Player and marked units should be skipped
+                if not (unitPlayer or (unitDesc == "!SMC")):
                     #Required unit values
                     unitID = matchValue(0,"id",unit,"")
                     unitType = matchValue(1,"vehicle",unit,"")
@@ -104,7 +106,7 @@ def procGroups(groupsList):
                     unitChance = matchValue(0,"presence",unit,"")
                     unitDir = matchValue(0,"azimut",unit,"")
                     unitInit = matchValue(1,"init",unit,"")
-                    unitName = matchValue(1,"text",unit,"")
+                    unitLock = matchValue(1,"lock",unit,"FORM")
                     unitOff = matchValue(0,"offsetY",unit,"")
                     unitRadius = matchValue(0,"placement",unit,"0")
                     unitRank = matchValue(1,"rank",unit,"")
@@ -127,7 +129,7 @@ def procGroups(groupsList):
 
                     #Determine variable to be used for unit, must have an ID number
                     if unitID:
-                        unitVariable = "_unit{0}".format(unitID)
+                        unitVariable = matchValue(1,"text",unit,"_unit{0}".format(unitID))
                     else:
                         return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
@@ -152,11 +154,6 @@ def procGroups(groupsList):
                             return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
-
-                    #If unit has an editor name then set it here
-                    if unitName:
-                        returnCode += "\t\t{0} = {1};\n".format(unitName,unitVariable)
-                        unitVariable = unitName
 
                     #Unit heading
                     if unitDir:
@@ -192,13 +189,11 @@ def procGroups(groupsList):
                     #Must close condition block if present
                     if unitCond or unitChance:
                         returnCode += "};\n"
-        else:
-            return malformed("group {0} has no units".format(groupIndex))
 
-        #Process the waypoints of the group
-        '''if groupWaypoints:
-            for unit in groupUnits:
-                unitPos ='''
+            #Process the waypoints of the group (only if it contains units)
+            '''if groupWaypoints and groupUnits:
+                for wp in groupWaypoints:
+                    wpPos ='''
 
     return returnCode
 
