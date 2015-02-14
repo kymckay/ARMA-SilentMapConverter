@@ -30,27 +30,24 @@ reGroupSide = re.compile(r"^\t{3}side=\"(.+)\";",re.I|re.M)
 reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
 reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
 
-reUnitChance = re.compile(r"presence=(\d(\.\d+)?);",re.I)
-reUnitCond = re.compile(r"presenceCondition=\"(.+)\";",re.I)
-reUnitDir = re.compile(r"azimut=(\d+(\.\d+)?);",re.I)
-reUnitID = re.compile(r"id=(\d+)",re.I)
-reUnitInit = re.compile(r"init=\"(.+)\";",re.I)
-reUnitName = re.compile(r"text=\"(.+)\";",re.I)
-reUnitOff = re.compile(r"offsetY=(\d+(\.\d+)?);",re.I)
-reUnitPlayer = re.compile(r"player=\"(.+)\";",re.I)
-reUnitPos = re.compile(r"position\[\]=\{(.+)\};",re.I)
-reUnitRank = re.compile(r"rank=\"(.+)\";",re.I)
-reUnitRadius = re.compile(r"placement=(\d+(\.\d+)?);",re.I)
-reUnitSkill = re.compile(r"skill=(\d+(\.\d+)?);",re.I)
-reUnitSpecial = re.compile(r"special=\"(.+)\";",re.I)
-reUnitType = re.compile(r"vehicle=\"(.+)\";",re.I)
-
 #Define common function for reporting malformed sqm file
 def malformed(reason):
     return "// Error: SQM file is malformed, {0}".format(reason)
 
 #Returns first group of match if match made, otherwise default value
-def matchValue(match,default):
+def matchValue(valueType,value,item,default):
+    #Numerical config values
+    if valueType == 0:
+        match = re.search(value + r"=(\d(\.\d+)?);",item,re.I)
+    #String config entries
+    elif valueType == 1:
+        match = re.search(value + r"=\"(.+)\";",item,re.I)
+    #Array config entries
+    elif valueType == 2:
+        match = re.search(value + r"\[\]=\{(.+)\};",item,re.I)
+    else:
+        return default
+
     if match:
         return match.group(1)
     else:
@@ -65,8 +62,9 @@ def procGroups(groupsList):
         group = group.group(0)
 
         #Extract and verify group side
-        groupSide = matchValue(reGroupSide.search(group),[])
+        groupSide = reGroupSide.search(group)
         if groupSide:
+            groupSide = groupSide.group(1)
             if groupSide in sideDict:
                 groupSide = sideDict[groupSide]
             else:
@@ -95,23 +93,23 @@ def procGroups(groupsList):
                 unit = unit.group(0)
 
                 #Player units should be skipped
-                if not reUnitPlayer.search(unit):
+                if not matchValue(1,"player",unit,""):
                     #Required unit values
-                    unitID = matchValue(reUnitID.search(unit),"")
-                    unitType = matchValue(reUnitType.search(unit),"")
-                    unitPos = matchValue(reUnitPos.search(unit),"")
+                    unitID = matchValue(0,"id",unit,"")
+                    unitType = matchValue(1,"vehicle",unit,"")
+                    unitPos = matchValue(2,"position",unit,"")
 
                     #Optional unit values
-                    unitCond = matchValue(reUnitCond.search(unit),"")
-                    unitChance = matchValue(reUnitChance.search(unit),"")
-                    unitDir = matchValue(reUnitDir.search(unit),"")
-                    unitInit = matchValue(reUnitInit.search(unit),"")
-                    unitName = matchValue(reUnitName.search(unit),"")
-                    unitOff = matchValue(reUnitOff.search(unit),"")
-                    unitRadius = matchValue(reUnitRadius.search(unit),"0")
-                    unitRank = matchValue(reUnitRank.search(unit),"")
-                    unitSkill = matchValue(reUnitSkill.search(unit),"0.60000002")
-                    unitSpecial = matchValue(reUnitSpecial.search(unit),"FORM")
+                    unitCond = matchValue(1,"presenceCondition",unit,"")
+                    unitChance = matchValue(0,"presence",unit,"")
+                    unitDir = matchValue(0,"azimut",unit,"")
+                    unitInit = matchValue(1,"init",unit,"")
+                    unitName = matchValue(1,"text",unit,"")
+                    unitOff = matchValue(0,"offsetY",unit,"")
+                    unitRadius = matchValue(0,"placement",unit,"0")
+                    unitRank = matchValue(1,"rank",unit,"")
+                    unitSkill = matchValue(0,"skill",unit,"0.60000002")
+                    unitSpecial = matchValue(1,"special",unit,"FORM")
 
                     #Build the unit presence condition
                     if unitCond and unitChance:
