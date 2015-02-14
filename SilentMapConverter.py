@@ -57,7 +57,6 @@ def syncList(syncID):
         if not hasattr(syncList, "idList"):
             syncList.idList = []  # it doesn't exist yet, so initialize it
         syncList.idList.append(syncID)
-        print str(syncList.idList)
     return syncList.idList
 
 #Define processing functions for later (they all take a list of match objects)
