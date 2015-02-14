@@ -103,9 +103,12 @@ def procGroups(groupsList):
                     unitPos = matchValue(2,"position",unit,"")
 
                     #Optional unit values
+                    unitAmmo = matchValue(0,"ammo",unit,"")
                     unitCond = matchValue(1,"presenceCondition",unit,"")
                     unitChance = matchValue(0,"presence",unit,"")
                     unitDir = matchValue(0,"azimut",unit,"")
+                    unitFuel = matchValue(0,"fuel",unit,"")
+                    unitHP = matchValue(0,"health",unit,"")
                     unitInit = matchValue(1,"init",unit,"")
                     unitLock = matchValue(1,"lock",unit,"")
                     unitOff = matchValue(0,"offsetY",unit,"")
@@ -203,6 +206,17 @@ def procGroups(groupsList):
                     if unitLock:
                         unitLock = unitLock.upper()
                         returnCode += "\t\t{0} setVehicleLock \"{1}\";\n".format(unitVariable,unitLock)
+
+                    #Unit fuel
+                    if unitFuel:
+                        returnCode += "\t\t{0} setFuel {1};\n".format(unitVariable,unitFuel)
+                    #Unit ammo
+                    if unitAmmo:
+                        returnCode += "\t\t{0} setVehicleAmmo {1};\n".format(unitVariable,unitAmmo)
+                    #Unit health
+                    if unitHP:
+                        unitHP = 1 - float(unitHP)
+                        returnCode += "\t\t{0} setDamage {1};\n".format(unitVariable,unitHP)
 
                     #Run init lines inline
                     if unitInit:
