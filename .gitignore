@@ -2,6 +2,7 @@
 *.sqm
 *.sqf
 
-#Unwanted py2exe files
+#Unwanted files from compiling
 /Compile/build/*
 /Compile/dist/*
+/Compile/SilentMapConverter.py
