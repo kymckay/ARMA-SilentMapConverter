@@ -247,7 +247,6 @@ def procVehicles(vehiclesList):
         vehDesc = matchValue(1,"description",veh,"")
         if vehDesc != "!SMC":
             #Required vehicle values
-            vehID = matchValue(0,"id",veh,"")
             vehType = matchValue(1,"vehicle",veh,"")
             vehPos = matchValue(2,"position",veh,"")
 
@@ -263,6 +262,7 @@ def procVehicles(vehiclesList):
             vehOff = matchValue(0,"offsetY",veh,"")
             vehRadius = matchValue(0,"placement",veh,"0")
             vehSpecial = matchValue(1,"special",veh,"FORM")
+            vehVariable = matchValue(1,"text",veh,"_veh{0}".format(vehIndex))
 
             #Build the vehicle presence condition
             if vehCond and vehChance:
@@ -277,12 +277,6 @@ def procVehicles(vehiclesList):
             elif vehChance:
                 vehChance = str(round(float(vehChance),2))
                 returnCode += "if (random 1 < {0}) then {{\n".format(vehChance)
-
-            #Determine variable to be used for vehicle, must have an ID number
-            if vehID:
-                vehVariable = matchValue(1,"text",veh,"_veh{0}".format(vehID))
-            else:
-                return malformed("vehicle {0} has no id number".format(vehIndex))
 
             #Create the vehicle
             if vehType:
