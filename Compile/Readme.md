@@ -6,5 +6,5 @@
 
 ***Creating the .ico file***
 
-1. I use the excellent PHP ICO Generator (found here: https://github.com/chrisbliss18/php-ico)
+1. I use the excellent [PHP ICO Generator](https://github.com/chrisbliss18/php-ico) (Thanks for taking the time to actually figure out the .ico format)
 2. Array of sizes supplied to generator must go from largest to lowest for py2exe
