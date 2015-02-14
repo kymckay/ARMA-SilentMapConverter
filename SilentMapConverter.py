@@ -26,7 +26,6 @@ sideDict = {
 reTopLevel = re.compile(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t\};",re.I|re.M|re.S)
 reSubLevel = re.compile(r"^\t\tclass\sItem(\d+).+?^\t\t\};",re.I|re.M|re.S)
 
-reGroupSide = re.compile(r"^\t{3}side=\"(.+)\";",re.I|re.M)
 reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
 reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
 
@@ -63,9 +62,8 @@ def procGroups(groupsList):
         group = group.group(0)
 
         #Extract and verify group side
-        groupSide = reGroupSide.search(group)
+        groupSide = matchValue(1,"side",group,"")
         if groupSide:
-            groupSide = groupSide.group(1)
             if groupSide in sideDict:
                 groupSide = sideDict[groupSide]
             else:
@@ -170,7 +168,7 @@ def procGroups(groupsList):
                         if unitSyncs:
                             unitSyncs = unitSyncs.split(",")
                             validSyncs = []
-                            #Build list of IDs that are created earlier
+                            #Build list of IDs that have been created earlier
                             for sync in unitSyncs:
                                 if int(float(sync)) < int(float(unitSyncID)):
                                     if sync in validSyncIDs:
@@ -240,6 +238,12 @@ def procGroups(groupsList):
 
 def procVehicles(vehiclesList):
     returnCode = "// ---Vehicles---\n"
+
+    for veh in vehiclesList:
+        #Extract index of the vehicle
+        vehIndex = veh.group(1)
+        veh = veh.group(0)
+
     return returnCode
 
 def procMarkers(markersList):
