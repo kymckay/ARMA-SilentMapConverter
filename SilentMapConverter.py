@@ -106,7 +106,7 @@ def procGroups(groupsList):
                     unitChance = matchValue(0,"presence",unit,"")
                     unitDir = matchValue(0,"azimut",unit,"")
                     unitInit = matchValue(1,"init",unit,"")
-                    unitLock = matchValue(1,"lock",unit,"FORM")
+                    unitLock = matchValue(1,"lock",unit,"")
                     unitOff = matchValue(0,"offsetY",unit,"")
                     unitRadius = matchValue(0,"placement",unit,"0")
                     unitRank = matchValue(1,"rank",unit,"")
@@ -175,6 +175,11 @@ def procGroups(groupsList):
                     if unitRank:
                         unitRank = unitRank.upper()
                         returnCode += "\t\t{0} setRank \"{1}\";\n".format(unitVariable,unitRank)
+
+                    #Unit lock
+                    if unitLock:
+                        unitLock = unitLock.upper()
+                        returnCode += "\t\t{0} setVehicleLock \"{1}\";\n".format(unitVariable,unitLock)
 
                     #Run init lines inline
                     if unitInit:
