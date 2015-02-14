@@ -52,10 +52,17 @@ def matchValue(valueType,value,item,default):
     else:
         return default
 
+def syncList(syncID):
+    if syncID:
+        if not hasattr(syncList, "idList"):
+            syncList.idList = []  # it doesn't exist yet, so initialize it
+        syncList.idList.append(syncID)
+        print str(syncList.idList)
+    return syncList.idList
+
 #Define processing functions for later (they all take a list of match objects)
 def procGroups(groupsList):
     returnCode = "// ---Groups---\n"
-    validSyncIDs = []
     for group in groupsList:
         #Extract index of the group
         groupIndex = group.group(1)
@@ -162,7 +169,7 @@ def procGroups(groupsList):
                     if unitSyncID:
                         returnCode += "\t\t_sync{0} = {1};\n".format(unitSyncID,unitVariable)
                         #Store syncID if created (can check that it exists)
-                        validSyncIDs.append(unitSyncID)
+                        syncList(unitSyncID)
 
                         #Syncronize unit, only possible with syncID
                         if unitSyncs:
@@ -170,10 +177,9 @@ def procGroups(groupsList):
                             validSyncs = []
                             #Build list of IDs that have been created earlier
                             for sync in unitSyncs:
-                                if int(float(sync)) < int(float(unitSyncID)):
-                                    if sync in validSyncIDs:
-                                        sync = "_sync{0}".format(sync)
-                                        validSyncs.append(sync)
+                                if sync in syncList(""):
+                                    sync = "_sync{0}".format(sync)
+                                    validSyncs.append(sync)
                             if validSyncs:
                                 validSyncs = ",".join(validSyncs)
                                 returnCode += "\t\t{0} synchronizeObjectsAdd [{1}]\n".format(unitVariable,validSyncs)
