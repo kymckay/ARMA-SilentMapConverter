@@ -37,7 +37,7 @@ def malformed(reason):
 def matchValue(valueType,value,item,default):
     #Numerical config values
     if valueType == 0:
-        match = re.search(value + r"=(\d(\.\d+)?);",item,re.I)
+        match = re.search(value + r"=(\d+(\.\d+)?);",item,re.I)
     #String config entries
     elif valueType == 1:
         match = re.search(value + r"=\"(.+)\";",item,re.I)
