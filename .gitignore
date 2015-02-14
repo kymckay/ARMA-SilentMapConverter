@@ -4,4 +4,4 @@
 
 #Unwanted py2exe files
 /Compile/build/*
-/Compile/dist/w9xpopen.exe
+/Compile/dist/*
