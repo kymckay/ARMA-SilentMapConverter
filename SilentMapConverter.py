@@ -52,12 +52,29 @@ def matchValue(valueType,value,item,default):
     else:
         return default
 
+#Store created sync IDs
 def syncList(syncID):
+    if not hasattr(syncList, "idList"):
+        syncList.idList = []  # it doesn't exist yet, so initialize it
     if syncID:
-        if not hasattr(syncList, "idList"):
-            syncList.idList = []  # it doesn't exist yet, so initialize it
         syncList.idList.append(syncID)
     return syncList.idList
+
+#Store created unit IDs
+def unitList(unitID):
+    if not hasattr(unitList, "idList"):
+        unitList.idList = []  # it doesn't exist yet, so initialize it
+    if unitID:
+        unitList.idList.append(unitID)
+    return unitList.idList
+
+#Store unattached wp IDs (correspond to unit IDs)
+def wpList(unitID):
+    if not hasattr(wpList, "idList"):
+        wpList.idList = []  # it doesn't exist yet, so initialize it
+    if unitID:
+        wpList.idList.append(unitID)
+    return wpList.idList
 
 #Define processing functions for later (they all take a list of match objects)
 def procGroups(groupsList):
@@ -115,6 +132,7 @@ def procGroups(groupsList):
                     unitHP = matchValue(0,"health",unit,"")
                     unitInit = matchValue(1,"init",unit,"")
                     unitLock = matchValue(1,"lock",unit,"")
+                    unitName = matchValue(1,"text",unit,"")
                     unitOff = matchValue(0,"offsetY",unit,"")
                     unitRadius = matchValue(0,"placement",unit,"0")
                     unitRank = matchValue(1,"rank",unit,"")
@@ -122,6 +140,15 @@ def procGroups(groupsList):
                     unitSpecial = matchValue(1,"special",unit,"FORM")
                     unitSyncID = matchValue(0,"syncId",unit,"")
                     unitSyncs = matchValue(2,"synchronizations",unit,"")
+
+
+                    #Unit must have an ID number (to attach waypoints)
+                    if unitID:
+                        unitVariable = "SMC_unit{0}".format(unitID)
+                        #Store unitID (can check that it exists)
+                        unitList(unitID)
+                    else:
+                        return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
                     #Build the unit presence condition
                     if unitCond and unitChance:
@@ -136,12 +163,6 @@ def procGroups(groupsList):
                     elif unitChance:
                         unitChance = str(round(float(unitChance),2))
                         returnCode += "if (random 1 < {0}) then {{\n".format(unitChance)
-
-                    #Determine variable to be used for unit, must have an ID number
-                    if unitID:
-                        unitVariable = matchValue(1,"text",unit,"_unit{0}".format(unitID))
-                    else:
-                        return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
                     #Create the unit
                     if unitType:
@@ -163,6 +184,15 @@ def procGroups(groupsList):
                             return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
+
+                    #If any waypoints are awaiting attachment to unit do so
+                    if unitID in wpList(""):
+                        returnCode += "\t\tSMC_wp{0} waypointAttachVehicle {1};\n".format(unitID,unitVariable)
+
+                    #Unit name assigned after creation to preserve ID variable
+                    if unitName:
+                        returnCode += "\t\t{0} = {1};\n".format(unitName,unitVariable)
+                        unitVariable = unitName
 
                     #Unit syncID (assign standardised var for synchronization)
                     if unitSyncID:
@@ -235,9 +265,21 @@ def procGroups(groupsList):
                         returnCode += "};\n"
 
             #Process the waypoints of the group (only if it contains units)
-            '''if groupWaypoints:
+            if groupWaypoints:
                 for wp in groupWaypoints:
-                    wpPos ='''
+                    wpIndex = wp.group(1)
+                    wp = wp.group(0)
+
+                    wpDesc = matchValue(1,"description",wp,"")
+                    if wpDesc != "!SMC":
+                        #Required waypoint values
+                        wpPos = matchValue(2,"position",unit,"")
+
+                        #Optional waypoint values
+                        wpID = matchValue(0,"id",wp,"")
+                        wpType = matchValue(1,"type",wp,"")
+
+            '''If attachment id already exists then attach, else push to wp array'''
 
     return returnCode
 
@@ -252,6 +294,7 @@ def procVehicles(vehiclesList):
         vehDesc = matchValue(1,"description",veh,"")
         if vehDesc != "!SMC":
             #Required vehicle values
+            vehID = matchValue(0,"id",veh,"")
             vehType = matchValue(1,"vehicle",veh,"")
             vehPos = matchValue(2,"position",veh,"")
 
@@ -264,10 +307,19 @@ def procVehicles(vehiclesList):
             vehHP = matchValue(0,"health",veh,"")
             vehInit = matchValue(1,"init",veh,"")
             vehLock = matchValue(1,"lock",veh,"")
+            vehName = matchValue(1,"text",veh,"")
             vehOff = matchValue(0,"offsetY",veh,"")
             vehRadius = matchValue(0,"placement",veh,"0")
             vehSpecial = matchValue(1,"special",veh,"FORM")
-            vehVariable = matchValue(1,"text",veh,"_veh{0}".format(vehIndex))
+
+
+            #Vehicle must have an ID number (to attach waypoints)
+            if vehID:
+                vehVariable = "SMC_unit{0}".format(vehID)
+                #Store unitID (can check that it exists)
+                unitList(vehID)
+            else:
+                return malformed("vehicle {0} has no id number".format(vehIndex))
 
             #Build the vehicle presence condition
             if vehCond and vehChance:
@@ -301,6 +353,11 @@ def procVehicles(vehiclesList):
                     return malformed("vehicle {0} has no position".format(vehIndex))
             else:
                 return malformed("vehicle {0} has no classname".format(vehIndex))
+
+            #Vehicle name assigned after creation to preserve ID variable
+            if vehName:
+                returnCode += "\t\t{0} = {1};\n".format(vehName,vehVariable)
+                unitVariable = vehName
 
             #Vehicle heading
             if vehDir:
