@@ -139,8 +139,7 @@ def procGroups(groupsList):
                             #Z and Y coordinates flipped in SQM, split string
                             unitPos = unitPos.split(",")
                             if len(unitPos) == 3:
-                                unitPos.pop(1)
-                                unitPos.append("0")
+                                unitPos.append(unitPos.pop(1))
                             else:
                                 return malformed("unit {0} in group {1} has invalid position coordinates".format(unitIndex,groupIndex))
 
@@ -191,7 +190,7 @@ def procGroups(groupsList):
                         returnCode += "};\n"
 
             #Process the waypoints of the group (only if it contains units)
-            '''if groupWaypoints and groupUnits:
+            '''if groupWaypoints:
                 for wp in groupWaypoints:
                     wpPos ='''
 
