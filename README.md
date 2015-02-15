@@ -19,10 +19,10 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 
 ### Units/Objects
 
-- [x] Name (Won't be available on all machines, use publicVariable in unit's initialization field to achieve this)
+- [x] Name (Only available on the machine that runs the code, use publicVariable in unit's initialization field if required)
 - [x] Position
 - [x] Direction
-- [x] Elevation (Arma 3)
+- [x] Elevation (Arma 3 feature)
 - [x] Placement radius
 - [x] Condition of presence
 - [x] Probability of presence
@@ -32,13 +32,14 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 - [x] Health
 - [x] Ammo
 - [x] Fuel
+- [x] Synchronized units
 
 ### Waypoints
 
-- [x] Name (Arma 3)
+- [x] Name (Arma 3 feature)
 - [x] Position
 - [x] Placement radius
-- [ ] Unit attachment (Can't be done due to engine limitation)
+- [ ] Unit attachment (Waypoints can't be attached to units created via script)
 
 ### Markers
 
