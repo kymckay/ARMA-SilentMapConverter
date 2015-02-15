@@ -313,6 +313,16 @@ def procGroups(groupsList):
                                 wpCond = "true"
                             wpCode += "\t\t{0} setWaypointStatements [\"{1}\",\"{2}\"];\n".format(wpVariable,wpCond,wpAct)
 
+                        #Waypoint timeout (can exist independently)
+                        if wpTimeMin or wpTimeMid or wpTimeMax:
+                            if not wpTimeMin:
+                                wpTimeMin = "0"
+                            if not wpTimeMid:
+                                wpTimeMid = "0"
+                            if not wpTimeMax:
+                                wpTimeMax = "0"
+                            wpCode += "\t\t{0} setWaypointTimeout [{1},{2},{3}];\n".format(wpVariable,wpTimeMin,wpTimeMid,wpTimeMax)
+
                         #Waypoint combat mode
                         if wpCombat:
                             wpCode += "\t\t{0} setWaypointCombatMode \"{1}\";\n".format(wpVariable,wpCombat)
