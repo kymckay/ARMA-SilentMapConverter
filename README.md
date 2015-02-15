@@ -48,9 +48,10 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 - [x] Type
 - [x] Position
 - [x] Placement radius
+- [x] Completion radius
+- [ ] Unit attachment (waypoints can't be attached to units created via script)
 - [x] Static attachment
 - [x] Building position
-- [ ] Unit attachment (waypoints can't be attached to units created via script)
 
 ### Markers
 
