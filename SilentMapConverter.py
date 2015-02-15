@@ -259,12 +259,19 @@ def procGroups(groupsList):
 
                         #Optional waypoint values
                         wpAct = matchValue(1,"expActiv",wp,"")
-                        wpCompletion = matchValue(0,"completitionRadius",wp,"")
+                        wpBehave = matchValue(1,"combat",wp,"")
+                        wpCombat = matchValue(1,"combatMode",wp,"")
+                        wpComp = matchValue(0,"completitionRadius",wp,"")
                         wpCond = matchValue(1,"expCond",wp,"")
                         wpHouse = matchValue(0,"housePos",wp,"")
+                        wpForm = matchValue(1,"formation",wp,"")
                         wpName = matchValue(1,"name",wp,"")
                         wpRadius = matchValue(0,"placement",wp,"0")
+                        wpSpeed = matchValue(1,"speed",wp,"")
                         wpStatic = matchValue(0,"idStatic",wp,"")
+                        wpTimeMin = matchValue(0,"timeoutMin",wp,"")
+                        wpTimeMid = matchValue(0,"timeoutMid",wp,"")
+                        wpTimeMax = matchValue(0,"timeoutMax",wp,"")
                         wpType = matchValue(1,"type",wp,"")
 
                         #Waypoint variable
@@ -306,9 +313,25 @@ def procGroups(groupsList):
                                 wpCond = "true"
                             wpCode += "\t\t{0} setWaypointStatements [\"{1}\",\"{2}\"];\n".format(wpVariable,wpCond,wpAct)
 
+                        #Waypoint combat mode
+                        if wpCombat:
+                            wpCode += "\t\t{0} setWaypointCombatMode \"{1}\";\n".format(wpVariable,wpCombat)
+
+                        #Waypoint behaviour
+                        if wpBehave:
+                            wpCode += "\t\t{0} setWaypointBehaviour \"{1}\";\n".format(wpVariable,wpBehave)
+
+                        #Waypoint speed
+                        if wpSpeed:
+                            wpCode += "\t\t{0} setWaypointSpeed \"{1}\";\n".format(wpVariable,wpSpeed)
+
+                        #Waypoint formation
+                        if wpForm:
+                            wpCode += "\t\t{0} setWaypointFormation \"{1}\";\n".format(wpVariable,wpForm)
+
                         #Waypoint completion radius
-                        if wpCompletion:
-                            wpCode += "\t\t{0} setWaypointCompletionRadius {1};\n".format(wpVariable,wpCompletion)
+                        if wpComp:
+                            wpCode += "\t\t{0} setWaypointCompletionRadius {1};\n".format(wpVariable,wpComp)
 
                         #Waypoint name
                         if wpName:
