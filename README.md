@@ -27,7 +27,7 @@ The output SQF will be structured like so:
 3. Delete everything you don't want to be created on the headless client (in general: anything that isn't AI).
 4. Save this version of the mission and then convert the SQM file using SMC.
 5. Remove everything that you want on the headless client from the original mission file (so that it isn't duplicated).
-6. Optional: Store the headless client SQM file in the mission folder in case you need it again.
+6. *Optional*: Store the headless client SQM file in the mission folder in case you need it again.
 7. Set your mission up to execute the output SQF file on the headless client.
 
 ## Functionality
