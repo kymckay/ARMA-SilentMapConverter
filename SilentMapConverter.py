@@ -267,6 +267,7 @@ def procGroups(groupsList):
                         wpForm = matchValue(1,"formation",wp,"")
                         wpName = matchValue(1,"name",wp,"")
                         wpRadius = matchValue(0,"placement",wp,"0")
+                        wpScript = matchValue(1,"script",wp,"")
                         wpSpeed = matchValue(1,"speed",wp,"")
                         wpStatic = matchValue(0,"idStatic",wp,"")
                         wpTimeMin = matchValue(0,"timeoutMin",wp,"")
@@ -346,6 +347,10 @@ def procGroups(groupsList):
                         #Waypoint name
                         if wpName:
                             wpCode += "\t\t{0} setWaypointName \"{1}\";\n".format(wpVariable,wpName)
+
+                        #Waypoint script
+                        if wpScript:
+                            wpCode +="\t\t{0} setWaypointScript \"{1}\";\n".format(wpVariable,wpScript)
 
     #Create all units then all waypoints
     returnCode += unitCode + wpCode
