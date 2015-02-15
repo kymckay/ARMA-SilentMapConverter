@@ -62,9 +62,9 @@ def syncList(syncID):
 
 #Define processing functions for later (they all take a list of match objects)
 def procGroups(groupsList):
-    returnCode = "// ---Groups---\n"
-    wpCode = ""
-    unitCode = ""
+    returnCode = "// --Groups--\n"
+    unitCode = "// -Units-\n"
+    wpCode = "// -Waypoints-\n"
     for group in groupsList:
         #Extract index of the group
         groupIndex = group.group(1)
@@ -95,7 +95,7 @@ def procGroups(groupsList):
 
         #Process the units of the group if applicable
         if groupUnits and (groupSide != "sideLogic"):
-            returnCode += "_group{0} = createGroup {1};\n".format(groupIndex,groupSide)
+            unitCode += "_group{0} = createGroup {1};\n".format(groupIndex,groupSide)
             for unit in groupUnits:
                 unitIndex = unit.group(1)
                 unit = unit.group(0)
@@ -118,6 +118,7 @@ def procGroups(groupsList):
                     unitHP = matchValue(0,"health",unit,"")
                     unitInit = matchValue(1,"init",unit,"")
                     unitLock = matchValue(1,"lock",unit,"")
+                    unitName = matchValue(1,"text",unit,"")
                     unitOff = matchValue(0,"offsetY",unit,"")
                     unitRadius = matchValue(0,"placement",unit,"0")
                     unitRank = matchValue(1,"rank",unit,"")
@@ -129,7 +130,10 @@ def procGroups(groupsList):
 
                     #Unit must have an ID number (to generate variable)
                     if unitID:
-                        unitVariable = matchValue(1,"text",unit,"_unit{0}".format(unitID))
+                        if unitName:
+                            unitVariable = unitName
+                        else:
+                            unitVariable = "_unit{0}".format(unitID)
                     else:
                         return malformed("unit {0} in group {1} has no id number".format(unitIndex,groupIndex))
 
@@ -139,13 +143,13 @@ def procGroups(groupsList):
                         unitChance = str(round(float(unitChance),2))
                         #Strings all the way down
                         unitCond = unitCond.replace("\"\"","\"")
-                        returnCode += "if (({0}) && (random 1 < {1})) then {{\n".format(unitCond,unitChance)
+                        unitCode += "if (({0}) && (random 1 < {1})) then {{\n".format(unitCond,unitChance)
                     elif unitCond:
                         unitCond = unitCond.replace("\"\"","\"")
-                        returnCode += "if ({0}) then {{\n".format(unitCond)
+                        unitCode += "if ({0}) then {{\n".format(unitCond)
                     elif unitChance:
                         unitChance = str(round(float(unitChance),2))
-                        returnCode += "if (random 1 < {0}) then {{\n".format(unitChance)
+                        unitCode += "if (random 1 < {0}) then {{\n".format(unitChance)
 
                     #Create the unit
                     if unitType:
@@ -160,17 +164,21 @@ def procGroups(groupsList):
                             #Join list back into position string
                             unitPos = ",".join(unitPos)
 
-                            returnCode += "\t{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
+                            unitCode += "\t{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
                             #Vehicles can't be created as units, use BIS func for backwards compatibility
-                            returnCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; [{0},_group{5}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial,groupIndex)
+                            unitCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; [{0},_group{5}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial,groupIndex)
                         else:
                             return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
 
+                    #Set and broadcast unit name
+                    if unitName:
+                        unitCode += "\t\t{0} setVehicleVarName \"{1}\";\n".format(unitVariable,unitName)
+
                     #Unit syncID (assign standardised var for synchronization)
                     if unitSyncID:
-                        returnCode += "\t\tSMC_sync{0} = {1};\n".format(unitSyncID,unitVariable)
+                        unitCode += "\t\tSMC_sync{0} = {1};\n".format(unitSyncID,unitVariable)
                         #Store syncID if created (can check that it exists)
                         syncList(unitSyncID)
 
@@ -185,11 +193,11 @@ def procGroups(groupsList):
                                     validSyncs.append(sync)
                             if validSyncs:
                                 validSyncs = ",".join(validSyncs)
-                                returnCode += "\t\t{0} synchronizeObjectsAdd [{1}]\n".format(unitVariable,validSyncs)
+                                unitCode += "\t\t{0} synchronizeObjectsAdd [{1}]\n".format(unitVariable,validSyncs)
 
                     #Unit heading
                     if unitDir:
-                        returnCode += "\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
+                        unitCode += "\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
 
                     #Unit elevation offset (Arma 3)
                     if unitOff:
@@ -197,33 +205,33 @@ def procGroups(groupsList):
                         unitPos.pop(2)
                         unitPos.append(unitOff)
                         unitPos = ",".join(unitPos)
-                        returnCode += "\t\t{0} setPosATL [{1}];\n".format(unitVariable,unitPos)
+                        unitCode += "\t\t{0} setPosATL [{1}];\n".format(unitVariable,unitPos)
 
                     #Unit skill
                     if unitSkill:
                         if unitSkill != "0.60000002":
-                            returnCode += "\t\t{0} setSkill {1};\n".format(unitVariable,unitSkill)
+                            unitCode += "\t\t{0} setSkill {1};\n".format(unitVariable,unitSkill)
 
                     #Unit rank
                     if unitRank:
                         unitRank = unitRank.upper()
-                        returnCode += "\t\t{0} setRank \"{1}\";\n".format(unitVariable,unitRank)
+                        unitCode += "\t\t{0} setRank \"{1}\";\n".format(unitVariable,unitRank)
 
                     #Unit lock
                     if unitLock:
                         unitLock = unitLock.upper()
-                        returnCode += "\t\t{0} setVehicleLock \"{1}\";\n".format(unitVariable,unitLock)
+                        unitCode += "\t\t{0} setVehicleLock \"{1}\";\n".format(unitVariable,unitLock)
 
                     #Unit fuel
                     if unitFuel:
-                        returnCode += "\t\t{0} setFuel {1};\n".format(unitVariable,unitFuel)
+                        unitCode += "\t\t{0} setFuel {1};\n".format(unitVariable,unitFuel)
                     #Unit ammo
                     if unitAmmo:
-                        returnCode += "\t\t{0} setVehicleAmmo {1};\n".format(unitVariable,unitAmmo)
+                        unitCode += "\t\t{0} setVehicleAmmo {1};\n".format(unitVariable,unitAmmo)
                     #Unit health
                     if unitHP:
                         unitHP = 1 - float(unitHP)
-                        returnCode += "\t\t{0} setDamage {1};\n".format(unitVariable,unitHP)
+                        unitCode += "\t\t{0} setDamage {1};\n".format(unitVariable,unitHP)
 
                     #Run init lines inline
                     if unitInit:
@@ -232,11 +240,11 @@ def procGroups(groupsList):
                         unitInit = unitInit.replace("this",unitVariable)
                         if unitInit[len(unitInit) - 1] != ";":
                             unitInit = unitInit + ";"
-                        returnCode += "\t\t{0}\n".format(unitInit)
+                        unitCode += "\t\t{0}\n".format(unitInit)
 
                     #Must close condition block if present
                     if unitCond or unitChance:
-                        returnCode += "};\n"
+                        unitCode += "};\n"
 
             #Process the waypoints of the group (only if units exist)
             if groupWaypoints:
@@ -254,11 +262,8 @@ def procGroups(groupsList):
                         wpRadius = matchValue(0,"placement",wp,"0")
                         wpType = matchValue(1,"type",wp,"")
 
-                        #Waypoint Name
-                        if wpName:
-                            wpVariable = wpName
-                        else:
-                            wpVariable = "_wp{0}".format(wpIndex)
+                        #Waypoint variable
+                        wpVariable = "_wp{0}".format(wpIndex)
 
                         #Create the waypoint
                         if wpPos:
@@ -272,15 +277,20 @@ def procGroups(groupsList):
                             #Join list back into position string
                             wpPos = ",".join(wpPos)
 
-                            returnCode += "\t{0} = _group{1} addWaypoint [[{2}],{3}];\n".format(wpVariable,groupIndex,wpPos,wpRadius)
+                            wpCode += "\t{0} = _group{1} addWaypoint [[{2}],{3}];\n".format(wpVariable,groupIndex,wpPos,wpRadius)
                         else:
                             return malformed("waypoint {0} in group {1} has no position".format(wpIndex,groupIndex))
 
+                        #Waypoint name
+                        if wpName:
+                            wpCode += "\t\t{0} setWaypointName \"{1}\";\n".format(wpVariable,wpName)
 
+    #Create all units then all waypoints
+    returnCode += unitCode + wpCode
     return returnCode
 
 def procVehicles(vehiclesList):
-    returnCode = "// ---Vehicles---\n"
+    returnCode = "// --Vehicles--\n"
 
     for veh in vehiclesList:
         #Extract index of the vehicle
@@ -306,7 +316,12 @@ def procVehicles(vehiclesList):
             vehOff = matchValue(0,"offsetY",veh,"")
             vehRadius = matchValue(0,"placement",veh,"0")
             vehSpecial = matchValue(1,"special",veh,"FORM")
-            vehVariable = matchValue(1,"text",unit,"_veh{0}".format(vehIndex))
+
+            #Vehicle variable
+            if vehName:
+                vehVariable = vehName
+            else:
+                vehVariable = "_veh{0}".format(vehIndex)
 
             #Build the vehicle presence condition
             if vehCond and vehChance:
@@ -340,6 +355,10 @@ def procVehicles(vehiclesList):
                     return malformed("vehicle {0} has no position".format(vehIndex))
             else:
                 return malformed("vehicle {0} has no classname".format(vehIndex))
+
+            #Set and broadcast vehicle name
+            if vehName:
+                returnCode += "\t\t{0} setVehicleVarName \"{1}\";\n".format(vehVariable,vehName)
 
             #Vehicle heading
             if vehDir:
@@ -385,11 +404,11 @@ def procVehicles(vehiclesList):
     return returnCode
 
 def procMarkers(markersList):
-    returnCode = "// ---Markers---\n"
+    returnCode = "// --Markers--\n"
     return returnCode
 
 def procTriggers(triggersList):
-    returnCode = "// ---Triggers---\n"
+    returnCode = "// --Triggers--\n"
     return returnCode
 #-------------------------------------------------------------------------------
 #Main
