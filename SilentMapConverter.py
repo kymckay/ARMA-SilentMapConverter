@@ -268,6 +268,7 @@ def procGroups(groupsList):
                         wpName = matchValue(1,"name",wp,"")
                         wpRadius = matchValue(0,"placement",wp,"0")
                         wpScript = matchValue(1,"script",wp,"")
+                        wpShow = matchValue(1,"showWP",wp,"NEVER")
                         wpSpeed = matchValue(1,"speed",wp,"")
                         wpStatic = matchValue(0,"idStatic",wp,"")
                         wpTimeMin = matchValue(0,"timeoutMin",wp,"")
@@ -347,6 +348,10 @@ def procGroups(groupsList):
                         #Waypoint name
                         if wpName:
                             wpCode += "\t\t{0} setWaypointName \"{1}\";\n".format(wpVariable,wpName)
+
+                        #Waypoint show
+                        if wpShow != "NEVER":
+                            wpCode += "\t\t{0} showWaypoint \"{1}\";\n".format(wpVariable,wpShow)
 
                         #Waypoint script
                         if wpScript:

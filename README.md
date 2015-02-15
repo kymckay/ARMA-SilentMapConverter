@@ -60,6 +60,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 - [x] Static attachment
 - [x] Building position
 - [x] Script (and arguments)
+- [x] Visibility
 
 ### Markers
 
