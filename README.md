@@ -2,14 +2,18 @@ SilentMapConverter
 ========================
 
 ## Overview
-A program used to convert SQM files into SQF files for Arma (particularly useful for headless client missions). This was my first programming project which I used in order to get comfortable with Python and various programming concepts.
+A program used to convert SQM files into SQF files for Arma (particularly useful for headless client missions).
+
+This was my first programming project which I used in order to get comfortable with Python and various programming concepts.
 
 ## How to use
-When SMC is ran, all SQM files in the same directory will be converted. The output SQF files will be created in the same directory with the same names respectively.
-Works with both Arma 2 and 3 standard SQM files.
+1. Place SMC in the same directory as the SQM file(s) to be converted.
+2. Run SMC.
+3. An SQF file with the same respective name will be created in the directory.
+4. Open the file to check that there were no errors in conversion (SMC will create an error message at the top of the file).
 
 ## Functionality
-SMC will ignore player units, units that belong to sideLogic (including modules) and anything with the description "!SMC".
+SMC will ignore player units, units that belong to sideLogic (including modules) and anything with the description `!SMC`.
 
 Below is a list of supported and unsupported SQM values. Keep this information in mind when designing your mission.
 
