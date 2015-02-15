@@ -21,6 +21,15 @@ The output SQF will be structured like so:
   - Waypoints
 - Triggers
 
+## Using SMC for a headless client
+1. Create a mission as normal.
+2. Make a copy of the mission and open it in the editor.
+3. Delete everything you don't want to be created on the headless client (in general: anything that isn't AI).
+4. Save this version of the mission and then convert the SQM file using SMC.
+5. Remove everything that you want on the headless client from the original mission file (so that it isn't duplicated).
+6. Optional: Store the headless client SQM file in the mission folder in case you need it again.
+7. Set your mission up to execute the output SQF file on the headless client.
+
 ## Functionality
 SMC will ignore player units, units that belong to sideLogic (including modules) and anything with the description `!SMC`.
 
@@ -41,6 +50,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Ammo
   - [x] Fuel
   - [x] Synchronized units
+  - [x] Description (used solely for `!SMC`)
 - Waypoints
   - [x] Name (A3 feature)
   - [x] Type
@@ -59,6 +69,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Building position
   - [x] Script (and arguments)
   - [x] Visibility
+  - [x] Description (used solely for `!SMC`)
 - Markers
   - [x] Angle
   - [x] Position
@@ -67,10 +78,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Type
   - [x] Brush
   - [x] Colour
-  - [x] Text
+  - [x] Text (can use `!SMC` here, otherwise treated as expected)
   - [x] Alpha
 - Triggers
   - [ ] WIP
-
-## Using SMC for a headless client
-1. 
