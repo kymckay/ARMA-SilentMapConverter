@@ -258,7 +258,9 @@ def procGroups(groupsList):
                         wpPos = matchValue(2,"position",wp,"")
 
                         #Optional waypoint values
+                        wpAct = matchValue(1,"expActiv",wp,"")
                         wpCompletion = matchValue(0,"completitionRadius",wp,"")
+                        wpCond = matchValue(1,"expCond",wp,"")
                         wpHouse = matchValue(0,"housePos",wp,"")
                         wpName = matchValue(1,"name",wp,"")
                         wpRadius = matchValue(0,"placement",wp,"0")
@@ -297,6 +299,12 @@ def procGroups(groupsList):
                         #Waypoint type
                         if wpType:
                             wpCode += "\t\t{0} setWaypointType \"{1}\";\n".format(wpVariable,wpType)
+
+                        #Waypoint statements (can exist independently)
+                        if wpCond or wpAct:
+                            if not wpCond:
+                                wpCond = "true"
+                            wpCode += "\t\t{0} setWaypointStatements [\"{1}\",\"{2}\"];\n".format(wpVariable,wpCond,wpAct)
 
                         #Waypoint completion radius
                         if wpCompletion:
