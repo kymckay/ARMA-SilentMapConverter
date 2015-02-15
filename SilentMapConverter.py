@@ -263,7 +263,7 @@ def procGroups(groupsList):
                         wpType = matchValue(1,"type",wp,"")
 
                         #Waypoint variable
-                        wpVariable = "_wp{0}".format(wpIndex)
+                        wpVariable = "_wp{0}{1}".format(groupIndex,wpIndex)
 
                         #Create the waypoint
                         if wpPos:
