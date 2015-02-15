@@ -1,5 +1,5 @@
 from distutils.core import setup
-import py2exe, os, re, sys
+import py2exe, os, re, sys, time
 
 sys.argv.append('py2exe')
 
@@ -10,7 +10,7 @@ setup(
             "icon_resources": [(0, "icon.ico")]
             }],
     zipfile = None,
-    version = "1.0.0",
-    name = "SilentMapConverter",
-    description = "SQM files in the current folder become SQF files",
+    version = "2.0.0",
+    name = "SMC",
+    description = "Convert SQM into SQF",
 )
