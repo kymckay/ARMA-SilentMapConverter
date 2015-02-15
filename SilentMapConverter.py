@@ -298,9 +298,9 @@ def procGroups(groupsList):
 
                         #Waypoint static attachment
                         if wpStatic:
-                            wpCode += "\t\t_wpObj = ([{0}] nearestObject {1});\n".format(wpPos,wpStatic)
-                            wpCode += "\t\tif !(isNull _wpObj) then {\n"
-                            wpCode += "\t\t\t{0} waypointAttachObject _wpObj;\n".format(wpVariable)
+                            wpCode += "\t\t_wpObj{1} = ([{0}] nearestObject {1});\n".format(wpPos,wpStatic)
+                            wpCode += "\t\tif !(isNull _wpObj{0}) then {{\n".format(wpStatic)
+                            wpCode += "\t\t\t{0} waypointAttachObject _wpObj{1};\n".format(wpVariable,wpStatic)
                             #Waypoint building position
                             if wpHouse:
                                 wpCode += "\t\t\t{0} setWaypointHousePosition {1};\n".format(wpVariable,wpHouse)
