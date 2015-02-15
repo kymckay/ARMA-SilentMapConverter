@@ -14,11 +14,11 @@ This was my first programming project which I used in order to get comfortable w
 
 The output SQF will be structured like so:
 
+- Markers
 - Empty Vehicles/Objects
 - Groups
   - Units
   - Waypoints
-- Markers
 - Triggers
 
 ## Functionality
