@@ -69,7 +69,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Colour
   - [x] Text
   - [x] Alpha
--Triggers
+- Triggers
   - [ ] WIP
 
 ## Using SMC for a headless client
