@@ -73,6 +73,7 @@ def procGroups(groupsList):
         #Extract and verify group side
         groupSide = matchValue(1,"side",group,"")
         if groupSide:
+            groupSide = groupSide.upper()
             if groupSide in sideDict:
                 groupSide = sideDict[groupSide]
             else:
@@ -327,18 +328,22 @@ def procGroups(groupsList):
 
                         #Waypoint combat mode
                         if wpCombat:
+                            wpCombat = wpCombat.upper()
                             wpCode += "\t\t{0} setWaypointCombatMode \"{1}\";\n".format(wpVariable,wpCombat)
 
                         #Waypoint behaviour
                         if wpBehave:
+                            wpBehave = wpBehave.upper()
                             wpCode += "\t\t{0} setWaypointBehaviour \"{1}\";\n".format(wpVariable,wpBehave)
 
                         #Waypoint speed
                         if wpSpeed:
+                            wpSpeed = wpSpeed.upper()
                             wpCode += "\t\t{0} setWaypointSpeed \"{1}\";\n".format(wpVariable,wpSpeed)
 
                         #Waypoint formation
                         if wpForm:
+                            wpForm = wpForm.upper()
                             wpCode += "\t\t{0} setWaypointFormation \"{1}\";\n".format(wpVariable,wpForm)
 
                         #Waypoint completion radius
@@ -350,6 +355,7 @@ def procGroups(groupsList):
                             wpCode += "\t\t{0} setWaypointName \"{1}\";\n".format(wpVariable,wpName)
 
                         #Waypoint show
+                        wpShow = wpShow.upper()
                         if wpShow != "NEVER":
                             wpCode += "\t\t{0} showWaypoint \"{1}\";\n".format(wpVariable,wpShow)
 
