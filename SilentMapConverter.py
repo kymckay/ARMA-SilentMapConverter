@@ -258,8 +258,10 @@ def procGroups(groupsList):
                         wpPos = matchValue(2,"position",wp,"")
 
                         #Optional waypoint values
+                        wpHouse = matchValue(0,"housePos",wp,"")
                         wpName = matchValue(1,"name",wp,"")
                         wpRadius = matchValue(0,"placement",wp,"0")
+                        wpStatic = matchValue(0,"idStatic",wp,"")
                         wpType = matchValue(1,"type",wp,"")
 
                         #Waypoint variable
@@ -280,6 +282,20 @@ def procGroups(groupsList):
                             wpCode += "\t{0} = _group{1} addWaypoint [[{2}],{3}];\n".format(wpVariable,groupIndex,wpPos,wpRadius)
                         else:
                             return malformed("waypoint {0} in group {1} has no position".format(wpIndex,groupIndex))
+
+                        #Waypoint static attachment
+                        if wpStatic:
+                            wpCode += "\t\t_wpObj = ([{0}] nearestObject {1});\n".format(wpPos,wpStatic)
+                            wpCode += "\t\tif !(isNull _wpObj) then {\n"
+                            wpCode += "\t\t\t{0} waypointAttachObject _wpObj;\n".format(wpVariable)
+                            #Waypoint building position
+                            if wpHouse:
+                                wpCode += "\t\t\t{0} setWaypointHousePosition {1};\n".format(wpVariable,wpHouse)
+                            wpCode += "\t\t};\n"
+
+                        #Waypoint type
+                        if wpType:
+                            wpCode += "\t\t{0} setWaypointType \"{1}\";\n".format(wpVariable,wpType)
 
                         #Waypoint name
                         if wpName:
