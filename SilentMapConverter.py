@@ -37,13 +37,13 @@ def malformed(reason):
 def matchValue(valueType,value,item,default):
     #Numerical config values
     if valueType == 0:
-        match = re.search(value + r"=(\d+(\.\d+)?);",item,re.I)
+        match = re.search(r"\W" + value + r"=(-?\d+(\.\d+)?);",item,re.I)
     #String config entries
     elif valueType == 1:
-        match = re.search(value + r"=\"(.+)\";",item,re.I)
+        match = re.search(r"\W" + value + r"=\"(.+)\";",item,re.I)
     #Array config entries
     elif valueType == 2:
-        match = re.search(value + r"\[\]=\{(.+)\};",item,re.I)
+        match = re.search(r"\W" + value + r"\[\]=\{(.+)\};",item,re.I)
     else:
         return default
 
@@ -369,7 +369,6 @@ def procGroups(groupsList):
 
 def procVehicles(vehiclesList):
     returnCode = "// --Vehicles--\n"
-
     for veh in vehiclesList:
         #Extract index of the vehicle
         vehIndex = veh.group(1)
@@ -483,10 +482,92 @@ def procVehicles(vehiclesList):
 
 def procMarkers(markersList):
     returnCode = "// --Markers--\n"
+    for mark in markersList:
+        #Extract index of the marker
+        markIndex = mark.group(1)
+        mark = mark.group(0)
+
+        markText = matchValue(1,"text",mark,"")
+        if markText != "!SMC":
+            #Required marker values
+            markName = matchValue(1,"name",mark,"")
+            markPos = matchValue(2,"position",mark,"")
+
+            #Optional marker values
+            markAlpha = matchValue(0,"alpha",mark,"")
+            markAngle = matchValue(0,"angle",mark,"")
+            markBrush = matchValue(1,"fillName",mark,"")
+            markColour = matchValue(1,"colorName",mark,"")
+            markShape = matchValue(1,"markerType",mark,"ICON")
+            markSizeA = matchValue(0,"a",mark,"")
+            markSizeB = matchValue(0,"b",mark,"")
+            markType = matchValue(1,"type",mark,"")
+
+            #Create the marker
+            if markName:
+                if markPos:
+                    #Z and Y coordinates flipped in SQM, split string
+                    markPos = markPos.split(",")
+                    if len(markPos) == 3:
+                        markPos.append(markPos.pop(1))
+                    else:
+                        return malformed("marker {0} has invalid position coordinates".format(markIndex))
+
+                    #Join list back into position string
+                    markPos = ",".join(markPos)
+
+                    returnCode += "createMarker [\"{0}\",[{1}]];\n".format(markName,markPos)
+                else:
+                    return malformed("marker {0} has no position".format(markIndex))
+            else:
+                return malformed("marker {0} has no name".format(markIndex))
+
+            #Marker alpha (hidden config value)
+            if markAlpha:
+                returnCode += "\t\"{0}\" setMarkerAlpha {1};\n".format(markName,markAlpha)
+
+            #Marker shape
+            if markShape:
+                markShape = markShape.upper()
+                returnCode += "\t\"{0}\" setMarkerShape \"{1}\";\n".format(markName,markShape)
+
+            #Marker type (only applies to icons)
+            if markType and (markShape == "ICON"):
+                returnCode += "\t\"{0}\" setMarkerType \"{1}\";\n".format(markName,markType)
+
+            #Marker angle
+            if markAngle:
+                returnCode += "\t\"{0}\" setMarkerDir {1};\n".format(markName,markAngle)
+
+            #Marker size (can exist independently)
+            if markSizeA or markSizeB:
+                if not markSizeA:
+                    markSizeA = "1"
+                if not markSizeB:
+                    markSizeB = "1"
+                returnCode += "\t\"{0}\" setMarkerSize [{1},{2}];\n".format(markName,markSizeA,markSizeB)
+
+            #Marker brush
+            if markBrush and (markShape != "ICON"):
+                returnCode += "\t\"{0}\" setMarkerBrush \"{1}\";\n".format(markName,markBrush)
+
+            #Marker colour
+            if markColour:
+                returnCode += "\t\"{0}\" setMarkerColor \"{1}\";\n".format(markName,markColour)
+
+            #Marker text
+            if markText:
+                returnCode += "\t\"{0}\" setMarkerText \"{1}\";\n".format(markName,markText)
+
     return returnCode
 
 def procTriggers(triggersList):
     returnCode = "// --Triggers--\n"
+    for trig in triggersList:
+        #Extract index of the trigger
+        trigIndex = trig.group(1)
+        trig = trig.group(0)
+
     return returnCode
 #-------------------------------------------------------------------------------
 #Main

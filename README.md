@@ -64,7 +64,15 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 
 ### Markers
 
-- [ ] N/A
+- [x] Angle
+- [x] Position
+- [x] Shape
+- [x] Size
+- [x] Type
+- [x] Brush
+- [x] Colour
+- [x] Text
+- [x] Alpha
 
 ### Triggers
 
