@@ -11,6 +11,6 @@ setup(
             }],
     zipfile = None,
     version = "2.0.0",
-    name = "SMC",
+    name = "Silent Map Converter",
     description = "Convert SQM into SQF",
 )
