@@ -27,14 +27,14 @@ SMC will ignore player units, units that belong to sideLogic (including modules)
 Below is a list of supported and unsupported SQM values. Keep this information in mind when designing your mission.
 ### Units/Objects
 
-- [x] Name (Only available on the machine that runs the code, use publicVariable in unit's initialization field if required)
+- [x] Name (only available on the machine that runs the code, use publicVariable in unit's initialization field if required)
 - [x] Position
 - [x] Direction
-- [x] Elevation (Arma 3 feature)
+- [x] Elevation (A3 feature)
 - [x] Placement radius
 - [x] Condition of presence
 - [x] Probability of presence
-- [x] Initialization field (Executed after unit is created)
+- [x] Initialization field (executed after unit is created)
 - [x] Rank
 - [x] Skill
 - [x] Health
@@ -44,10 +44,13 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 
 ### Waypoints
 
-- [x] Name (Arma 3 feature)
+- [x] Name (A3 feature)
+- [x] Type
 - [x] Position
 - [x] Placement radius
-- [ ] Unit attachment (Waypoints can't be attached to units created via script)
+- [x] Static attachment
+- [x] Building position
+- [ ] Unit attachment (waypoints can't be attached to units created via script)
 
 ### Markers
 
