@@ -13,6 +13,10 @@ versionNum = "2.0.0"
 #Import needed libraries
 import os, re, sys, time
 
+
+reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
+reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
+
 #Define side dictionary used to translate config to code
 sideDict = {
     "EAST": "east",
@@ -22,16 +26,9 @@ sideDict = {
     "LOGIC": "sideLogic"
 }
 
-#Compile commonly used regex objects
-reTopLevel = re.compile(r"^\tclass\s(Groups|Vehicles|Markers|Sensors).+?^\t\};",re.I|re.M|re.S)
-reSubLevel = re.compile(r"^\t\tclass\sItem(\d+).+?^\t\t\};",re.I|re.M|re.S)
-
-reGroupTop = re.compile(r"^\t{3}class\s(Vehicles|Waypoints).+?^\t{3}\};",re.I|re.M|re.S)
-reGroupSub = re.compile(r"^\t{4}class\sItem(\d+).+?^\t{4}\};",re.I|re.M|re.S)
-
 #Define common function for reporting malformed sqm file
 def malformed(reason):
-    return "// Error: SQM file is malformed, {0}".format(reason)
+    return "// Error: SQM file is malformed, {0}\n".format(reason)
 
 #Returns first group of match if match made, otherwise default value
 def matchValue(valueType,value,item,default):
@@ -60,11 +57,226 @@ def syncList(syncID):
         syncList.idList.append(syncID)
     return syncList.idList
 
-#Define processing functions for later (they all take a list of match objects)
+#Define processing functions for later (they all take a iter of match objects)
+def procMarkers(markersList):
+    markCode = "// --Markers--\n"
+    for mark in markersList:
+        #Extract index of the marker
+        markIndex = mark.group(1)
+        mark = mark.group(0)
+
+        markText = matchValue(1,"text",mark,"")
+        if markText != "!SMC":
+            #Required marker values
+            markName = matchValue(1,"name",mark,"")
+            markPos = matchValue(2,"position",mark,"")
+
+            #Optional marker values
+            markAlpha = matchValue(0,"alpha",mark,"")
+            markAngle = matchValue(0,"angle",mark,"")
+            markBrush = matchValue(1,"fillName",mark,"")
+            markColour = matchValue(1,"colorName",mark,"")
+            markShape = matchValue(1,"markerType",mark,"ICON")
+            markSizeA = matchValue(0,"a",mark,"")
+            markSizeB = matchValue(0,"b",mark,"")
+            markType = matchValue(1,"type",mark,"")
+
+            #Create the marker
+            if markName:
+                if markPos:
+                    #Z and Y coordinates flipped in SQM, split string
+                    markPos = markPos.split(",")
+                    if len(markPos) == 3:
+                        markPos.append(markPos.pop(1))
+                    else:
+                        return malformed("marker {0} has invalid position coordinates".format(markIndex))
+
+                    #Join list back into position string
+                    markPos = ",".join(markPos)
+
+                    markCode += "createMarker [\"{0}\",[{1}]];\n".format(markName,markPos)
+                else:
+                    return malformed("marker {0} has no position".format(markIndex))
+            else:
+                return malformed("marker {0} has no name".format(markIndex))
+
+            #Marker alpha (hidden config value)
+            if markAlpha:
+                markCode += "\t\"{0}\" setMarkerAlpha {1};\n".format(markName,markAlpha)
+
+            #Marker shape
+            if markShape:
+                markShape = markShape.upper()
+                markCode += "\t\"{0}\" setMarkerShape \"{1}\";\n".format(markName,markShape)
+
+            #Marker type (only applies to icons)
+            if markType and (markShape == "ICON"):
+                markCode += "\t\"{0}\" setMarkerType \"{1}\";\n".format(markName,markType)
+
+            #Marker angle
+            if markAngle:
+                markCode += "\t\"{0}\" setMarkerDir {1};\n".format(markName,markAngle)
+
+            #Marker size (can exist independently)
+            if markSizeA or markSizeB:
+                if not markSizeA:
+                    markSizeA = "1"
+                if not markSizeB:
+                    markSizeB = "1"
+                markCode += "\t\"{0}\" setMarkerSize [{1},{2}];\n".format(markName,markSizeA,markSizeB)
+
+            #Marker brush
+            if markBrush and (markShape != "ICON"):
+                markCode += "\t\"{0}\" setMarkerBrush \"{1}\";\n".format(markName,markBrush)
+
+            #Marker colour
+            if markColour:
+                markCode += "\t\"{0}\" setMarkerColor \"{1}\";\n".format(markName,markColour)
+
+            #Marker text
+            if markText:
+                markCode += "\t\"{0}\" setMarkerText \"{1}\";\n".format(markName,markText)
+
+    return markCode
+
+def procVehicles(vehiclesList):
+    vehCode = "// --Vehicles--\n"
+    for veh in vehiclesList:
+        #Extract index of the vehicle
+        vehIndex = veh.group(1)
+        veh = veh.group(0)
+
+        vehDesc = matchValue(1,"description",veh,"")
+        if vehDesc != "!SMC":
+            #Required vehicle values
+            vehType = matchValue(1,"vehicle",veh,"")
+            vehPos = matchValue(2,"position",veh,"")
+
+            #Optional vehicle values
+            vehAmmo = matchValue(0,"ammo",veh,"")
+            vehCond = matchValue(1,"presenceCondition",veh,"")
+            vehChance = matchValue(0,"presence",veh,"")
+            vehDir = matchValue(0,"azimut",veh,"")
+            vehFuel = matchValue(0,"fuel",veh,"")
+            vehHP = matchValue(0,"health",veh,"")
+            vehInit = matchValue(1,"init",veh,"")
+            vehLock = matchValue(1,"lock",veh,"")
+            vehName = matchValue(1,"text",veh,"")
+            vehOff = matchValue(0,"offsetY",veh,"")
+            vehRadius = matchValue(0,"placement",veh,"0")
+            vehSpecial = matchValue(1,"special",veh,"FORM")
+            vehSyncID = matchValue(0,"syncId",veh,"")
+            vehSyncs = matchValue(2,"synchronizations",veh,"")
+
+            #Vehicle variable
+            if vehName:
+                vehVariable = vehName
+            else:
+                vehVariable = "_veh{0}".format(vehIndex)
+
+            #Build the vehicle presence condition
+            if vehCond and vehChance:
+                #Only useful to 2 DP
+                vehChance = str(round(float(vehChance),2))
+                #Strings all the way down
+                vehCond = vehCond.replace("\"\"","\"")
+                vehCode += "if (({0}) && (random 1 < {1})) then {{\n".format(vehCond,vehChance)
+            elif vehCond:
+                vehCond = vehCond.replace("\"\"","\"")
+                vehCode += "if ({0}) then {{\n".format(vehCond)
+            elif vehChance:
+                vehChance = str(round(float(vehChance),2))
+                vehCode += "if (random 1 < {0}) then {{\n".format(vehChance)
+
+            #Create the vehicle
+            if vehType:
+                if vehPos:
+                    #Z and Y coordinates flipped in SQM, split string
+                    vehPos = vehPos.split(",")
+                    if len(vehPos) == 3:
+                        vehPos.append(vehPos.pop(1))
+                    else:
+                        return malformed("vehicle {0} has invalid position coordinates".format(vehIndex))
+
+                    #Join list back into position string
+                    vehPos = ",".join(vehPos)
+
+                    vehCode += "{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"];\n".format(vehVariable,vehType,vehPos,vehRadius,vehSpecial)
+                else:
+                    return malformed("vehicle {0} has no position".format(vehIndex))
+            else:
+                return malformed("vehicle {0} has no classname".format(vehIndex))
+
+            #Set vehicle name
+            if vehName:
+                vehCode += "\t{0} setVehicleVarName \"{1}\";\n".format(vehVariable,vehName)
+
+
+            #Vehicle syncID (assign standardised var for synchronization)
+            if vehSyncID:
+                vehCode += "\tSMC_sync{0} = {1};\n".format(vehSyncID,vehVariable)
+                #Store syncID if created (can check that it exists)
+                syncList(vehSyncID)
+
+                #Syncronize vehicle, only possible with syncID
+                if vehSyncs:
+                    vehSyncs = vehSyncs.split(",")
+                    validSyncs = []
+                    #Build list of IDs that have been created earlier
+                    for sync in vehSyncs:
+                        if sync in syncList(""):
+                            sync = "SMC_sync{0}".format(sync)
+                            validSyncs.append(sync)
+                    if validSyncs:
+                        validSyncs = ",".join(validSyncs)
+                        vehCode += "\t{0} synchronizeObjectsAdd [{1}]\n".format(vehVariable,validSyncs)
+
+            #Vehicle heading
+            if vehDir:
+                vehCode += "\t{0} setDir {1};\n".format(vehVariable,vehDir)
+
+            #Vehicle elevation offset (Arma 3)
+            if vehOff:
+                vehPos = vehPos.split(",")
+                vehPos.pop(2)
+                vehPos.append(vehOff)
+                vehPos = ",".join(vehPos)
+                vehCode += "\t{0} setPosATL [{1}];\n".format(vehVariable,vehPos)
+
+            #Vehicle lock
+            if vehLock:
+                vehLock = vehLock.upper()
+                vehCode += "\t{0} setVehicleLock \"{1}\";\n".format(vehVariable,vehLock)
+
+            #Vehicle fuel
+            if vehFuel:
+                vehCode += "\t{0} setFuel {1};\n".format(vehVariable,vehFuel)
+            #Vehicle ammo
+            if vehAmmo:
+                vehCode += "\t{0} setVehicleAmmo {1};\n".format(vehVariable,vehAmmo)
+            #Vehicle health
+            if vehHP:
+                vehHP = 1 - float(vehHP)
+                vehCode += "\t{0} setDamage {1};\n".format(vehVariable,vehHP)
+
+            #Run init lines inline
+            if vehInit:
+                #Strings all the way down
+                vehInit = vehInit.replace("\"\"","\"")
+                vehInit = vehInit.replace("this",vehVariable)
+                if vehInit[len(vehInit) - 1] != ";":
+                    vehInit = vehInit + ";"
+                vehCode += "\t{0}\n".format(vehInit)
+
+            #Must close condition block if present
+            if vehCond or vehChance:
+                vehCode += "};\n"
+
+    return vehCode
+
 def procGroups(groupsList):
-    returnCode = "// --Groups--\n"
-    unitCode = "// -Units-\n"
-    wpCode = "// -Waypoints-\n"
+    unitCode = "// --Units--\n"
+    wpCode = "// --Waypoints--\n"
     for group in groupsList:
         #Extract index of the group
         groupIndex = group.group(1)
@@ -82,15 +294,15 @@ def procGroups(groupsList):
             return malformed("group {0} has no assigned side".format(groupIndex,groupSide))
 
         #Extract the units and waypoints subclasses of the group
-        groupSections = list(reGroupTop.finditer(group))
+        groupSections = reGroupTop.finditer(group)
         if groupSections:
             groupUnits = []
             groupWaypoints = []
             for section in groupSections:
                 if section.group(1) == "Vehicles":
-                    groupUnits = list(reGroupSub.finditer(section.group(0)))
+                    groupUnits = reGroupSub.finditer(section.group(0))
                 elif section.group(1) == "Waypoints":
-                    groupWaypoints = list(reGroupSub.finditer(section.group(0)))
+                    groupWaypoints = reGroupSub.finditer(section.group(0))
         else:
             return malformed("group {0} has no subclasses".format(groupIndex))
 
@@ -173,7 +385,7 @@ def procGroups(groupsList):
                     else:
                         return malformed("unit {0} in group {1} has no classname".format(unitIndex,groupIndex))
 
-                    #Set and broadcast unit name
+                    #Set unit name
                     if unitName:
                         unitCode += "\t\t{0} setVehicleVarName \"{1}\";\n".format(unitVariable,unitName)
 
@@ -292,29 +504,29 @@ def procGroups(groupsList):
                             #Join list back into position string
                             wpPos = ",".join(wpPos)
 
-                            wpCode += "\t{0} = _group{1} addWaypoint [[{2}],{3}];\n".format(wpVariable,groupIndex,wpPos,wpRadius)
+                            wpCode += "{0} = _group{1} addWaypoint [[{2}],{3}];\n".format(wpVariable,groupIndex,wpPos,wpRadius)
                         else:
                             return malformed("waypoint {0} in group {1} has no position".format(wpIndex,groupIndex))
 
                         #Waypoint static attachment
                         if wpStatic:
-                            wpCode += "\t\t_wpObj{1} = ([{0}] nearestObject {1});\n".format(wpPos,wpStatic)
-                            wpCode += "\t\tif !(isNull _wpObj{0}) then {{\n".format(wpStatic)
-                            wpCode += "\t\t\t{0} waypointAttachObject _wpObj{1};\n".format(wpVariable,wpStatic)
+                            wpCode += "\t_wpObj{1} = ([{0}] nearestObject {1});\n".format(wpPos,wpStatic)
+                            wpCode += "\tif !(isNull _wpObj{0}) then {{\n".format(wpStatic)
+                            wpCode += "\t\t{0} waypointAttachObject _wpObj{1};\n".format(wpVariable,wpStatic)
                             #Waypoint building position
                             if wpHouse:
-                                wpCode += "\t\t\t{0} setWaypointHousePosition {1};\n".format(wpVariable,wpHouse)
-                            wpCode += "\t\t};\n"
+                                wpCode += "\t\t{0} setWaypointHousePosition {1};\n".format(wpVariable,wpHouse)
+                            wpCode += "\t};\n"
 
                         #Waypoint type
                         if wpType:
-                            wpCode += "\t\t{0} setWaypointType \"{1}\";\n".format(wpVariable,wpType)
+                            wpCode += "\t{0} setWaypointType \"{1}\";\n".format(wpVariable,wpType)
 
                         #Waypoint statements (can exist independently)
                         if wpCond or wpAct:
                             if not wpCond:
                                 wpCond = "true"
-                            wpCode += "\t\t{0} setWaypointStatements [\"{1}\",\"{2}\"];\n".format(wpVariable,wpCond,wpAct)
+                            wpCode += "\t{0} setWaypointStatements [\"{1}\",\"{2}\"];\n".format(wpVariable,wpCond,wpAct)
 
                         #Waypoint timeout (can exist independently)
                         if wpTimeMin or wpTimeMid or wpTimeMax:
@@ -324,242 +536,47 @@ def procGroups(groupsList):
                                 wpTimeMid = "0"
                             if not wpTimeMax:
                                 wpTimeMax = "0"
-                            wpCode += "\t\t{0} setWaypointTimeout [{1},{2},{3}];\n".format(wpVariable,wpTimeMin,wpTimeMid,wpTimeMax)
+                            wpCode += "\t{0} setWaypointTimeout [{1},{2},{3}];\n".format(wpVariable,wpTimeMin,wpTimeMid,wpTimeMax)
 
                         #Waypoint combat mode
                         if wpCombat:
                             wpCombat = wpCombat.upper()
-                            wpCode += "\t\t{0} setWaypointCombatMode \"{1}\";\n".format(wpVariable,wpCombat)
+                            wpCode += "\t{0} setWaypointCombatMode \"{1}\";\n".format(wpVariable,wpCombat)
 
                         #Waypoint behaviour
                         if wpBehave:
                             wpBehave = wpBehave.upper()
-                            wpCode += "\t\t{0} setWaypointBehaviour \"{1}\";\n".format(wpVariable,wpBehave)
+                            wpCode += "\t{0} setWaypointBehaviour \"{1}\";\n".format(wpVariable,wpBehave)
 
                         #Waypoint speed
                         if wpSpeed:
                             wpSpeed = wpSpeed.upper()
-                            wpCode += "\t\t{0} setWaypointSpeed \"{1}\";\n".format(wpVariable,wpSpeed)
+                            wpCode += "\t{0} setWaypointSpeed \"{1}\";\n".format(wpVariable,wpSpeed)
 
                         #Waypoint formation
                         if wpForm:
                             wpForm = wpForm.upper()
-                            wpCode += "\t\t{0} setWaypointFormation \"{1}\";\n".format(wpVariable,wpForm)
+                            wpCode += "\t{0} setWaypointFormation \"{1}\";\n".format(wpVariable,wpForm)
 
                         #Waypoint completion radius
                         if wpComp:
-                            wpCode += "\t\t{0} setWaypointCompletionRadius {1};\n".format(wpVariable,wpComp)
+                            wpCode += "\t{0} setWaypointCompletionRadius {1};\n".format(wpVariable,wpComp)
 
                         #Waypoint name
                         if wpName:
-                            wpCode += "\t\t{0} setWaypointName \"{1}\";\n".format(wpVariable,wpName)
+                            wpCode += "\t{0} setWaypointName \"{1}\";\n".format(wpVariable,wpName)
 
                         #Waypoint show
                         wpShow = wpShow.upper()
                         if wpShow != "NEVER":
-                            wpCode += "\t\t{0} showWaypoint \"{1}\";\n".format(wpVariable,wpShow)
+                            wpCode += "\t{0} showWaypoint \"{1}\";\n".format(wpVariable,wpShow)
 
                         #Waypoint script
                         if wpScript:
                             wpCode +="\t\t{0} setWaypointScript \"{1}\";\n".format(wpVariable,wpScript)
 
     #Create all units then all waypoints
-    returnCode += unitCode + wpCode
-    return returnCode
-
-def procVehicles(vehiclesList):
-    returnCode = "// --Vehicles--\n"
-    for veh in vehiclesList:
-        #Extract index of the vehicle
-        vehIndex = veh.group(1)
-        veh = veh.group(0)
-
-        vehDesc = matchValue(1,"description",veh,"")
-        if vehDesc != "!SMC":
-            #Required vehicle values
-            vehType = matchValue(1,"vehicle",veh,"")
-            vehPos = matchValue(2,"position",veh,"")
-
-            #Optional vehicle values
-            vehAmmo = matchValue(0,"ammo",veh,"")
-            vehCond = matchValue(1,"presenceCondition",veh,"")
-            vehChance = matchValue(0,"presence",veh,"")
-            vehDir = matchValue(0,"azimut",veh,"")
-            vehFuel = matchValue(0,"fuel",veh,"")
-            vehHP = matchValue(0,"health",veh,"")
-            vehInit = matchValue(1,"init",veh,"")
-            vehLock = matchValue(1,"lock",veh,"")
-            vehName = matchValue(1,"text",veh,"")
-            vehOff = matchValue(0,"offsetY",veh,"")
-            vehRadius = matchValue(0,"placement",veh,"0")
-            vehSpecial = matchValue(1,"special",veh,"FORM")
-
-            #Vehicle variable
-            if vehName:
-                vehVariable = vehName
-            else:
-                vehVariable = "_veh{0}".format(vehIndex)
-
-            #Build the vehicle presence condition
-            if vehCond and vehChance:
-                #Only useful to 2 DP
-                vehChance = str(round(float(vehChance),2))
-                #Strings all the way down
-                vehCond = vehCond.replace("\"\"","\"")
-                returnCode += "if (({0}) && (random 1 < {1})) then {{\n".format(vehCond,vehChance)
-            elif vehCond:
-                vehCond = vehCond.replace("\"\"","\"")
-                returnCode += "if ({0}) then {{\n".format(vehCond)
-            elif vehChance:
-                vehChance = str(round(float(vehChance),2))
-                returnCode += "if (random 1 < {0}) then {{\n".format(vehChance)
-
-            #Create the vehicle
-            if vehType:
-                if vehPos:
-                    #Z and Y coordinates flipped in SQM, split string
-                    vehPos = vehPos.split(",")
-                    if len(vehPos) == 3:
-                        vehPos.append(vehPos.pop(1))
-                    else:
-                        return malformed("vehicle {0} has invalid position coordinates".format(vehIndex))
-
-                    #Join list back into position string
-                    vehPos = ",".join(vehPos)
-
-                    returnCode += "\t{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"];\n".format(vehVariable,vehType,vehPos,vehRadius,vehSpecial)
-                else:
-                    return malformed("vehicle {0} has no position".format(vehIndex))
-            else:
-                return malformed("vehicle {0} has no classname".format(vehIndex))
-
-            #Set and broadcast vehicle name
-            if vehName:
-                returnCode += "\t\t{0} setVehicleVarName \"{1}\";\n".format(vehVariable,vehName)
-
-            #Vehicle heading
-            if vehDir:
-                returnCode += "\t\t{0} setDir {1};\n".format(vehVariable,vehDir)
-
-            #Vehicle elevation offset (Arma 3)
-            if vehOff:
-                vehPos = vehPos.split(",")
-                vehPos.pop(2)
-                vehPos.append(vehOff)
-                vehPos = ",".join(vehPos)
-                returnCode += "\t\t{0} setPosATL [{1}];\n".format(vehVariable,vehPos)
-
-            #Vehicle lock
-            if vehLock:
-                vehLock = vehLock.upper()
-                returnCode += "\t\t{0} setVehicleLock \"{1}\";\n".format(vehVariable,vehLock)
-
-            #Vehicle fuel
-            if vehFuel:
-                returnCode += "\t\t{0} setFuel {1};\n".format(vehVariable,vehFuel)
-            #Vehicle ammo
-            if vehAmmo:
-                returnCode += "\t\t{0} setVehicleAmmo {1};\n".format(vehVariable,vehAmmo)
-            #Vehicle health
-            if vehHP:
-                vehHP = 1 - float(vehHP)
-                returnCode += "\t\t{0} setDamage {1};\n".format(vehVariable,vehHP)
-
-            #Run init lines inline
-            if vehInit:
-                #Strings all the way down
-                vehInit = vehInit.replace("\"\"","\"")
-                vehInit = vehInit.replace("this",vehVariable)
-                if vehInit[len(vehInit) - 1] != ";":
-                    vehInit = vehInit + ";"
-                returnCode += "\t\t{0}\n".format(vehInit)
-
-            #Must close condition block if present
-            if vehCond or vehChance:
-                returnCode += "};\n"
-
-    return returnCode
-
-def procMarkers(markersList):
-    returnCode = "// --Markers--\n"
-    for mark in markersList:
-        #Extract index of the marker
-        markIndex = mark.group(1)
-        mark = mark.group(0)
-
-        markText = matchValue(1,"text",mark,"")
-        if markText != "!SMC":
-            #Required marker values
-            markName = matchValue(1,"name",mark,"")
-            markPos = matchValue(2,"position",mark,"")
-
-            #Optional marker values
-            markAlpha = matchValue(0,"alpha",mark,"")
-            markAngle = matchValue(0,"angle",mark,"")
-            markBrush = matchValue(1,"fillName",mark,"")
-            markColour = matchValue(1,"colorName",mark,"")
-            markShape = matchValue(1,"markerType",mark,"ICON")
-            markSizeA = matchValue(0,"a",mark,"")
-            markSizeB = matchValue(0,"b",mark,"")
-            markType = matchValue(1,"type",mark,"")
-
-            #Create the marker
-            if markName:
-                if markPos:
-                    #Z and Y coordinates flipped in SQM, split string
-                    markPos = markPos.split(",")
-                    if len(markPos) == 3:
-                        markPos.append(markPos.pop(1))
-                    else:
-                        return malformed("marker {0} has invalid position coordinates".format(markIndex))
-
-                    #Join list back into position string
-                    markPos = ",".join(markPos)
-
-                    returnCode += "createMarker [\"{0}\",[{1}]];\n".format(markName,markPos)
-                else:
-                    return malformed("marker {0} has no position".format(markIndex))
-            else:
-                return malformed("marker {0} has no name".format(markIndex))
-
-            #Marker alpha (hidden config value)
-            if markAlpha:
-                returnCode += "\t\"{0}\" setMarkerAlpha {1};\n".format(markName,markAlpha)
-
-            #Marker shape
-            if markShape:
-                markShape = markShape.upper()
-                returnCode += "\t\"{0}\" setMarkerShape \"{1}\";\n".format(markName,markShape)
-
-            #Marker type (only applies to icons)
-            if markType and (markShape == "ICON"):
-                returnCode += "\t\"{0}\" setMarkerType \"{1}\";\n".format(markName,markType)
-
-            #Marker angle
-            if markAngle:
-                returnCode += "\t\"{0}\" setMarkerDir {1};\n".format(markName,markAngle)
-
-            #Marker size (can exist independently)
-            if markSizeA or markSizeB:
-                if not markSizeA:
-                    markSizeA = "1"
-                if not markSizeB:
-                    markSizeB = "1"
-                returnCode += "\t\"{0}\" setMarkerSize [{1},{2}];\n".format(markName,markSizeA,markSizeB)
-
-            #Marker brush
-            if markBrush and (markShape != "ICON"):
-                returnCode += "\t\"{0}\" setMarkerBrush \"{1}\";\n".format(markName,markBrush)
-
-            #Marker colour
-            if markColour:
-                returnCode += "\t\"{0}\" setMarkerColor \"{1}\";\n".format(markName,markColour)
-
-            #Marker text
-            if markText:
-                returnCode += "\t\"{0}\" setMarkerText \"{1}\";\n".format(markName,markText)
-
-    return returnCode
+    return unitCode + wpCode
 
 def procTriggers(triggersList):
     returnCode = "// --Triggers--\n"
@@ -590,53 +607,34 @@ for fileName in sqmFiles:
     missionPath = scriptDirectory + "\\" + fileName
     #Make sure the file exists before opening to avoid errors
     if os.path.isfile(missionPath):
-        # Initialise the output code with file header
+        #Initialise the output code with file header
         outputCode = "// Created by SMC v{0}\n".format(versionNum)
         outputCode += "// {0}\n\n".format(time.strftime("%c"))
 
         #Open the file this way so that it closes automatically when done
         with open(missionPath) as missionFile:
-            fileContents = missionFile.read()
-            mainSections = []
-            #Verify that the number of braces match
-            if len(re.findall(r"{",fileContents)) == len(re.findall(r"}",fileContents)):
-                # Extract the top-level sections of mission.sqm, returns an iterator of match objects so cast to list
-                mainSections = list(reTopLevel.finditer(fileContents))
-            else:
-                outputCode += malformed("number of opening and closing braces isn't equal")
-            #Clear file contents variable (unrequired from here)
-            fileContents = None
+            fileContent = missionFile.read()
+            #Extract the top-level sections of mission.sqm
+            classMarkers = re.search(r"^\tclass\sMarkers.+?^\t\};",fileContent,re.I|re.M|re.S)
+            classVehicles = re.search(r"^\tclass\sVehicles.+?^\t\};",fileContent,re.I|re.M|re.S)
+            classGroups = re.search(r"^\tclass\sGroups.+?^\t\};",fileContent,re.I|re.M|re.S)
+            classSensors = re.search(r"^\tclass\sSensors.+?^\t\};",fileContent,re.I|re.M|re.S)
+            #Clear content variable
+            fileContent = None
 
-        groupsCode = ""
-        vehiclesCode = ""
-        markersCode = ""
-        triggersCode = ""
-        if mainSections:
-            for currentSection in mainSections:
-                #All sections use the same classname system
-                sectionList = list(reSubLevel.finditer(currentSection.group(0)))
-                if currentSection.group(1) == "Groups":
-                    groupsCode += procGroups(sectionList)
-                elif currentSection.group(1) == "Vehicles":
-                    vehiclesCode += procVehicles(sectionList)
-                elif currentSection.group(1) == "Markers":
-                    markersCode += procMarkers(sectionList)
-                elif currentSection.group(1) == "Sensors":
-                    triggersCode += procTriggers(sectionList)
-        else:
-            outputCode += malformed("doesn't contain any data to convert")
+        #Compile common shared regex object
+        reSubClass = re.compile(r"^\t\tclass\sItem(\d+).+?^\t\t\};",re.I|re.M|re.S)
 
-        #Verify that valid code was returned
-        validCode = ""
-        #If section was malformed then include error message at top
-        for code in [markersCode,vehiclesCode,groupsCode,triggersCode]:
-            if re.match(r"//\sError:",code,re.I):
-                outputCode += code + "\n"
-            else:
-                validCode += code
-
-        #Combine valid sqf code from each section with output code
-        outputCode += validCode
+        #Process sections in order they will appear in SQF
+        #Allows sync variables to be checked in correct scope
+        if classMarkers:
+            outputCode += procMarkers(reSubClass.finditer(classMarkers.group(0)))
+        if classVehicles:
+            outputCode += procVehicles(reSubClass.finditer(classVehicles.group(0)))
+        if classGroups:
+            outputCode += procGroups(reSubClass.finditer(classGroups.group(0)))
+        if classSensors:
+            outputCode += procTriggers(reSubClass.finditer(classSensors.group(0)))
 
         #The written file should be created/overwritten in the same directory
         outputPath = scriptDirectory + "\\" + fileName[:len(fileName)-1] + "f"
