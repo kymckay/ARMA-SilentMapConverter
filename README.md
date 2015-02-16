@@ -31,7 +31,7 @@ The output SQF will be structured like so:
 7. Set your mission up to execute the output SQF file on the headless client.
 
 ## Functionality
-SMC will ignore player units, units that belong to sideLogic (including modules) and anything with the description `!SMC`.
+SMC will ignore player units, units that belong to sideLogic (including modules) and anything marked with `!SMC` (see below for details).
 
 Below is a list of supported and unsupported SQM values. Keep this information in mind when designing your mission.
 
