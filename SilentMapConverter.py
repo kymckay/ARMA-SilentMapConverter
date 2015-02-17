@@ -221,7 +221,7 @@ def procVehicle(veh):
                         validSyncs.append(sync)
                 if validSyncs:
                     validSyncs = ",".join(validSyncs)
-                    vehCode += "\t{0} synchronizeObjectsAdd [{1}]\n".format(vehVariable,validSyncs)
+                    vehCode += "\t{0} synchronizeObjectsAdd [{1}];\n".format(vehVariable,validSyncs)
 
         #Vehicle heading
         if vehDir:
@@ -364,7 +364,7 @@ def procUnit(unit,groupIndex):
                         validSyncs.append(sync)
                 if validSyncs:
                     validSyncs = ",".join(validSyncs)
-                    unitCode += "\t\t{0} synchronizeObjectsAdd [{1}]\n".format(unitVariable,validSyncs)
+                    unitCode += "\t\t{0} synchronizeObjectsAdd [{1}];\n".format(unitVariable,validSyncs)
 
         #Unit heading
         if unitDir:
