@@ -143,6 +143,8 @@ def procVehicle(veh):
         #Required vehicle values
         vehType = matchValue(1,"vehicle",veh,"")
         vehPos = matchValue(2,"position",veh,"")
+        vehRadius = matchValue(0,"placement",veh,"0")
+        vehSpecial = matchValue(1,"special",veh,"FORM")
 
         #Optional vehicle values
         vehAmmo = matchValue(0,"ammo",veh,"")
@@ -155,8 +157,6 @@ def procVehicle(veh):
         vehLock = matchValue(1,"lock",veh,"")
         vehName = matchValue(1,"text",veh,"")
         vehOff = matchValue(0,"offsetY",veh,"")
-        vehRadius = matchValue(0,"placement",veh,"0")
-        vehSpecial = matchValue(1,"special",veh,"FORM")
         vehSyncID = matchValue(0,"syncId",veh,"")
         vehSyncs = matchValue(2,"synchronizations",veh,"")
 
@@ -277,8 +277,11 @@ def procUnit(unit,groupIndex):
     if not (unitPlayer or (unitDesc == "!SMC")):
         #Required unit values
         unitID = matchValue(0,"id",unit,"")
-        unitType = matchValue(1,"vehicle",unit,"")
+        unitName = matchValue(1,"text",unit,"")
         unitPos = matchValue(2,"position",unit,"")
+        unitRadius = matchValue(0,"placement",unit,"0")
+        unitSpecial = matchValue(1,"special",unit,"FORM")
+        unitType = matchValue(1,"vehicle",unit,"")
 
         #Optional unit values
         unitAmmo = matchValue(0,"ammo",unit,"")
@@ -289,12 +292,9 @@ def procUnit(unit,groupIndex):
         unitHP = matchValue(0,"health",unit,"")
         unitInit = matchValue(1,"init",unit,"")
         unitLock = matchValue(1,"lock",unit,"")
-        unitName = matchValue(1,"text",unit,"")
         unitOff = matchValue(0,"offsetY",unit,"")
-        unitRadius = matchValue(0,"placement",unit,"0")
         unitRank = matchValue(1,"rank",unit,"")
         unitSkill = matchValue(0,"skill",unit,"0.60000002")
-        unitSpecial = matchValue(1,"special",unit,"FORM")
         unitSyncID = matchValue(0,"syncId",unit,"")
         unitSyncs = matchValue(2,"synchronizations",unit,"")
 
@@ -428,6 +428,7 @@ def procWaypoint(wp,groupIndex):
     if wpDesc != "!SMC":
         #Required waypoint values
         wpPos = matchValue(2,"position",wp,"")
+        wpRadius = matchValue(0,"placement",wp,"0")
 
         #Optional waypoint values
         wpAct = matchValue(1,"expActiv",wp,"")
@@ -438,7 +439,6 @@ def procWaypoint(wp,groupIndex):
         wpHouse = matchValue(0,"housePos",wp,"")
         wpForm = matchValue(1,"formation",wp,"")
         wpName = matchValue(1,"name",wp,"")
-        wpRadius = matchValue(0,"placement",wp,"0")
         wpScript = matchValue(1,"script",wp,"")
         wpShow = matchValue(1,"showWP",wp,"NEVER")
         wpSpeed = matchValue(1,"speed",wp,"")
@@ -471,13 +471,13 @@ def procWaypoint(wp,groupIndex):
 
         #Waypoint syncID (assign standardised var for synchronization)
         if wpSyncID:
-            wpCode += "\t\tSMC_sync{0} = {1};\n".format(wpSyncID,wpVariable)
+            wpCode += "\tSMC_sync{0} = {1};\n".format(wpSyncID,wpVariable)
             #Store syncID if created (can check that it exists)
             syncList(wpSyncID)
 
-            #Syncronize unit, only possible with syncID
+            #Syncronize waypoint, only possible with syncID
             if wpSyncs:
-                unitSyncs = wpSyncs.split(",")
+                wpSyncs = wpSyncs.split(",")
                 validSyncs = []
                 #Build list of IDs that have been created earlier
                 for sync in wpSyncs:
@@ -486,7 +486,7 @@ def procWaypoint(wp,groupIndex):
                         validSyncs.append(sync)
                 if validSyncs:
                     validSyncs = ",".join(validSyncs)
-                    wpCode += "\t\t{0} synchronizeWaypoint [{1}];\n".format(wpVariable,validSyncs)
+                    wpCode += "\t{0} synchronizeWaypoint [{1}];\n".format(wpVariable,validSyncs)
 
         #Waypoint static attachment
         if wpStatic:
@@ -553,7 +553,7 @@ def procWaypoint(wp,groupIndex):
 
         #Waypoint script
         if wpScript:
-            wpCode +="\t\t{0} setWaypointScript \"{1}\";\n".format(wpVariable,wpScript)
+            wpCode +="\t{0} setWaypointScript \"{1}\";\n".format(wpVariable,wpScript)
 
     return wpCode
 
@@ -561,6 +561,123 @@ def procSensor(sensor):
     sensorCode = ""
     sensorIndex = sensor.group(1)
     sensor = sensor.group(0)
+
+    sensorText = matchValue(1,"text",sensor,"")
+    if sensorText != "!SMC":
+        #Required sensor values
+        sensorName = matchValue(1,"name",sensor,"")
+        sensorPos = matchValue(2,"position",sensor,"")
+
+        #Optional sensor values
+        sensorAct = matchValue(1,"expActiv",sensor,"")
+        sensorActBy = matchValue(1,"activationBy",sensor,"")
+        sensorActType = matchValue(1,"activationType",sensor,"")
+        sensorAngle = matchValue(0,"angle",sensor,"")
+        sensorCond = matchValue(1,"expCond",sensor,"")
+        sensorDeact = matchValue(1,"expDesactiv",sensor,"")
+        sensorInterupt = matchValue(0,"interruptable",sensor,"")
+        sensorRectangle = matchValue(0,"rectangular",sensor,"")
+        sensorRepeat = matchValue(0,"repeating",sensor,"")
+        sensorSizeA = matchValue(0,"a",sensor,"")
+        sensorSizeB = matchValue(0,"b",sensor,"")
+        sensorSyncID = matchValue(0,"syncId",sensor,"")
+        sensorSyncs = matchValue(2,"synchronizations",sensor,"")
+        sensorTimeMin = matchValue(0,"timeoutMin",sensor,"")
+        sensorTimeMid = matchValue(0,"timeoutMid",sensor,"")
+        sensorTimeMax = matchValue(0,"timeoutMax",sensor,"")
+        sensorType = matchValue(1,"type",sensor,"")
+
+        #Sensor variable
+        if sensorName:
+            sensorVariable = sensorName
+        else:
+            sensorVariable = "_sensor{0}".format(sensorIndex)
+
+        #Create the sensor
+        if sensorPos:
+            #Z and Y coordinates flipped in SQM, split string
+            sensorPos = sensorPos.split(",")
+            if len(sensorPos) == 3:
+                sensorPos.append(sensorPos.pop(1))
+            else:
+                return malformed("trigger {0} has invalid position coordinates".format(sensorIndex))
+
+            #Join list back into position string
+            sensorPos = ",".join(sensorPos)
+
+            sensorCode += "{0} = createTrigger [\"EmptyDetector\",[{1}]];\n".format(sensorVariable,sensorPos)
+        else:
+            return malformed("trigger {0} has no position".format(sensorIndex))
+
+        #Sensor syncID (assign standardised var for synchronization)
+        if sensorSyncID:
+            sensorCode += "\tSMC_sync{0} = {1};\n".format(sensorSyncID,sensorVariable)
+            #Store syncID if created (can check that it exists)
+            syncList(sensorSyncID)
+
+            #Syncronize sensor, only possible with syncID
+            if sensorSyncs:
+                sensorSyncs = sensorSyncs.split(",")
+                validSyncs = []
+                #Build list of IDs that have been created earlier
+                for sync in sensorSyncs:
+                    if sync in syncList(""):
+                        sync = "SMC_sync{0}".format(sync)
+                        validSyncs.append(sync)
+                if validSyncs:
+                    validSyncs = ",".join(validSyncs)
+                    sensorCode += "\t{0} synchronizeTrigger [{1}];\n".format(sensorVariable,validSyncs)
+
+        #Sensor type
+        if sensorType:
+            sensorType = sensorType.upper()
+            sensorCode += "\t{0} setTriggerType \"{1}\";\n".format(sensorVariable,sensorType)
+
+        #Sensor timeout/countdown (can exist independently)
+        if sensorTimeMin or sensorTimeMid or sensorTimeMax:
+            if not sensorTimeMin:
+                sensorTimeMin = "0"
+            if not sensorTimeMid:
+                sensorTimeMid = "0"
+            if not sensorTimeMax:
+                sensorTimeMax = "0"
+            if sensorInterupt == "1":
+                sensorInterupt = "true"
+            else:
+                sensorInterupt = "false"
+            sensorCode += "\t{0} setTriggerTimeout [{1},{2},{3},{4}];\n".format(sensorVariable,sensorTimeMin,sensorTimeMid,sensorTimeMax,sensorInterupt)
+
+        #Sensor area (can exist independently)
+        if sensorSizeA or sensorSizeB or sensorAngle or sensorRectangle:
+            if not sensorSizeA:
+                sensorSizeA = "50"
+            if not sensorSizeB:
+                sensorSizeB = "50"
+            if not sensorAngle:
+                sensorAngle = "0"
+            if sensorRectangle == "1":
+                sensorRectangle = "true"
+            else:
+                sensorRectangle = "false"
+            sensorCode += "\t{0} setTriggerArea [{1},{2},{3},{4}];\n".format(sensorVariable,sensorSizeA,sensorSizeB,sensorAngle,sensorRectangle)
+
+        #Sensor statements (can exist independently)
+        if sensorCond or sensorAct or sensorDeact:
+            if not sensorCond:
+                sensorCond = "this"
+            sensorCode += "\t{0} setTriggerStatements [\"{1}\",\"{2}\",\"{3}\"];\n".format(sensorVariable,sensorCond,sensorAct,sensorDeact)
+
+        #Sensor activation (can exist independently)
+        if sensorActBy or sensorActType or sensorRepeat:
+            if not sensorActBy:
+                sensorActBy = "NONE"
+            if not sensorActType:
+                sensorActType = "PRESENT"
+            if sensorRepeat == "1":
+                sensorRepeat = "true"
+            else:
+                sensorRepeat = "false"
+            sensorCode += "\t{0} setTriggerActivation [\"{1}\",\"{2}\",{3}];\n".format(sensorVariable,sensorActBy,sensorActType,sensorRepeat)
 
     return sensorCode
 #-------------------------------------------------------------------------------
@@ -656,7 +773,7 @@ for fileName in sqmFiles:
 
         if classSensors:
             classSensors = reSubClass.finditer(classSensors.group(0))
-            outputCode += "// --Triggers--\n"
+            outputCode += "// --Sensors--\n"
             for sensor in classSensors:
                 outputCode += procSensor(sensor)
 
