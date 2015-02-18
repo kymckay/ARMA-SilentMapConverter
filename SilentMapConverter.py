@@ -694,7 +694,7 @@ else:
 #Produce an array of sqm files in the directory
 sqmFiles = []
 for fileName in os.listdir(scriptDirectory):
-    if fileName[len(fileName)-4:] == ".sqm":
+    if fileName.endswith(".sqm"):
         sqmFiles.append(fileName)
 
 for fileName in sqmFiles:
