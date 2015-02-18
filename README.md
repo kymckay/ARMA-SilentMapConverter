@@ -15,10 +15,9 @@ This was my first programming project which I used in order to get comfortable w
 The output SQF will be structured like so:
 
 - Markers
-- Empty Vehicles/Objects
-- Groups
-  - Units
-  - Waypoints
+- Vehicles/Objects
+- Units
+- Waypoints
 - Triggers
 
 ## Using SMC for a headless client
@@ -49,7 +48,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Health
   - [x] Ammo
   - [x] Fuel
-  - [x] Synchronized units
+  - [x] Synchronization
   - [x] Description (used solely for `!SMC`)
 - Waypoints
   - [x] Name (A3 feature)
@@ -68,6 +67,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Static attachment
   - [x] Building position
   - [x] Script (and arguments)
+  - [x] Synchronization
   - [x] Visibility
   - [x] Description (used solely for `!SMC`)
 - Markers

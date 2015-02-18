@@ -447,6 +447,8 @@ def procWaypoint(wp,groupIndex):
         wpTimeMid = matchValue(0,"timeoutMid",wp,"")
         wpTimeMax = matchValue(0,"timeoutMax",wp,"")
         wpType = matchValue(1,"type",wp,"")
+        wpSyncID = matchValue(0,"syncId",wp,"")
+        wpSyncs = matchValue(2,"synchronizations",wp,"")
 
         #Waypoint variable
         wpVariable = "_wp{0}{1}".format(groupIndex,wpIndex)
@@ -466,6 +468,25 @@ def procWaypoint(wp,groupIndex):
             wpCode += "{0} = _group{1} addWaypoint [[{2}],{3}];\n".format(wpVariable,groupIndex,wpPos,wpRadius)
         else:
             return malformed("waypoint {0} in group {1} has no position".format(wpIndex,groupIndex))
+
+        #Waypoint syncID (assign standardised var for synchronization)
+        if wpSyncID:
+            wpCode += "\t\tSMC_sync{0} = {1};\n".format(wpSyncID,wpVariable)
+            #Store syncID if created (can check that it exists)
+            syncList(wpSyncID)
+
+            #Syncronize unit, only possible with syncID
+            if wpSyncs:
+                unitSyncs = wpSyncs.split(",")
+                validSyncs = []
+                #Build list of IDs that have been created earlier
+                for sync in wpSyncs:
+                    if sync in syncList(""):
+                        sync = "SMC_sync{0}".format(sync)
+                        validSyncs.append(sync)
+                if validSyncs:
+                    validSyncs = ",".join(validSyncs)
+                    wpCode += "\t\t{0} synchronizeWaypoint [{1}];\n".format(wpVariable,validSyncs)
 
         #Waypoint static attachment
         if wpStatic:
@@ -592,7 +613,7 @@ for fileName in sqmFiles:
 
         if classVehicles:
             classVehicles = reSubClass.finditer(classVehicles.group(0))
-            outputCode += "// --Vehicles--\n"
+            outputCode += "// --Vehicles/Objects--\n"
             for vehicle in classVehicles:
                 outputCode += procVehicle(vehicle)
 
