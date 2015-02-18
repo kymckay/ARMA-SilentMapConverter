@@ -6,6 +6,8 @@ A program used to convert SQM files into SQF files for ARMA 2/3 (particularly us
 
 This was my first programming project which I used in order to get comfortable with Python and various programming concepts.
 
+As such, the program isn't a full blown SQM parser or anything particularly sophisticated. It simply uses regular expressions to find and extract the information it needs based on the standardised output of the ARMA mission editor. 
+
 ## How to use
 1. Place SMC in the same directory as the SQM file(s) to be converted.
 2. Run SMC.
@@ -18,7 +20,7 @@ The output SQF will be structured like so:
 - Vehicles/Objects
 - Units
 - Waypoints
-- Triggers
+- Sensors
 
 ## Using SMC for a headless client
 1. Create a mission as normal.
@@ -55,6 +57,7 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 - Waypoints
   - [x] Description (used solely for `!SMC`)
   - [x] Position
+  - [x] Height
   - [x] Placement radius
   - [x] Synchronization
   - [ ] Unit attachment (waypoints can't be attached to units created via script)
@@ -83,5 +86,20 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Brush
   - [x] Colour
   - [x] Text (can use `!SMC` here, otherwise treated as expected)
-- Triggers
-  - [ ] WIP
+- Sensors
+  - [x] Text (used solely for `!SMC`)
+  - [x] Name
+  - [x] Position
+  - [x] Synchronization
+  - [x] Type
+  - [x] Timeout
+  - [x] Countdown
+  - [x] Size
+  - [x] Angle
+  - [x] Shape
+  - [x] Condition
+  - [x] On Activation
+  - [x] On Deactivation
+  - [x] Activation
+  - [x] Once/Repeatedly
+  - [x] Present/Detected By
