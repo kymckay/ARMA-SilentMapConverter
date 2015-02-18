@@ -10,7 +10,7 @@ This was my first programming project which I used in order to get comfortable w
 1. Place SMC in the same directory as the SQM file(s) to be converted.
 2. Run SMC.
 3. An SQF file with the same respective name will be created in the directory.
-4. Open the file to check that there were no errors in conversion (SMC will create an error message at the top of the file).
+4. Open the file to check that there were no errors in conversion (SMC will create error messages with the prefix `// Error:`).
 
 The output SQF will be structured like so:
 
@@ -30,55 +30,58 @@ The output SQF will be structured like so:
 7. Set your mission up to execute the output SQF file on the headless client.
 
 ## Functionality
-SMC will ignore player units, units that belong to sideLogic (including modules) and anything marked with `!SMC` (see below for details).
+SMC will ignore player units, units that belong to sideLogic (including modules) and anything marked with `!SMC` (see list below for details).
 
 Below is a list of supported and unsupported SQM values. Keep this information in mind when designing your mission.
 
-- Units/Objects
-  - [x] Name (only available on the machine that runs the code, use publicVariable in unit's initialization field if required)
-  - [x] Position
-  - [x] Direction
-  - [x] Elevation (A3 feature)
-  - [x] Placement radius
+- Units/Vehicles/Objects
+  - [x] Description (used solely for `!SMC`)
   - [x] Condition of presence
   - [x] Probability of presence
-  - [x] Initialization field (executed after unit is created)
-  - [x] Rank
-  - [x] Skill
-  - [x] Health
-  - [x] Ammo
-  - [x] Fuel
-  - [x] Synchronization
-  - [x] Description (used solely for `!SMC`)
-- Waypoints
-  - [x] Name (A3 feature)
-  - [x] Type
+  - [x] Name (only available on the machine that runs the code, use publicVariable in unit's initialization field if required elsewhere)
   - [x] Position
   - [x] Placement radius
-  - [x] Completion radius
-  - [x] Condition
-  - [x] On Activation
-  - [x] Timeout
-  - [x] Combat mode
-  - [x] Behaviour
-  - [x] Formation
-  - [x] Speed
+  - [x] Special
+  - [x] Synchronization
+  - [x] Direction
+  - [x] Elevation (A3 feature)
+  - [x] Skill
+  - [x] Rank
+  - [x] Lock
+  - [x] Fuel
+  - [x] Ammo
+  - [x] Health
+  - [x] Initialization field (executed inline directly after unit is created)
+- Waypoints
+  - [x] Description (used solely for `!SMC`)
+  - [x] Position
+  - [x] Placement radius
+  - [x] Synchronization
   - [ ] Unit attachment (waypoints can't be attached to units created via script)
   - [x] Static attachment
   - [x] Building position
-  - [x] Script (and arguments)
-  - [x] Synchronization
-  - [x] Visibility
-  - [x] Description (used solely for `!SMC`)
-- Markers
-  - [x] Angle
-  - [x] Position
-  - [x] Shape
-  - [x] Size
   - [x] Type
+  - [x] Condition
+  - [x] On Activation
+  - [x] Completion radius
+  - [x] Timeout
+  - [x] Combat mode
+  - [x] Behaviour
+  - [x] Speed
+  - [x] Formation
+  - [x] Name (A3 feature - not the same as a variable name)
+  - [x] Visibility
+  - [x] Script (and arguments)
+- Markers
+  - [x] Name
+  - [x] Position
+  - [x] Alpha
+  - [x] Shape
+  - [x] Type
+  - [x] Angle
+  - [x] Size
   - [x] Brush
   - [x] Colour
   - [x] Text (can use `!SMC` here, otherwise treated as expected)
-  - [x] Alpha
 - Triggers
   - [ ] WIP
