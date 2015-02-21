@@ -107,5 +107,5 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Present/Detected By
   
 ## Footnotes
-Originally written for the unit I play with. Come join us at http://www.reddit.com/r/clearbackblast
-Bohemia Interactive forum thread: http://forums.bistudio.com/showthread.php?189056-Silent-Map-Converter
+* Originally written for the unit I play with. Come join us at http://www.reddit.com/r/clearbackblast
+* Bohemia Interactive forum thread: http://forums.bistudio.com/showthread.php?189056-Silent-Map-Converter
