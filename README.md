@@ -103,3 +103,6 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Activation
   - [x] Once/Repeatedly
   - [x] Present/Detected By
+  
+## Footnote
+Originally written for the unit I play with. Come join us at http://www.reddit.com/r/clearbackblast
