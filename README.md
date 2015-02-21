@@ -6,13 +6,15 @@ A program used to convert SQM files into SQF files for ARMA 2/3 (particularly us
 
 This was my first programming project which I used in order to get comfortable with Python and various programming concepts.
 
-As such, the program isn't a full blown SQM parser or anything particularly sophisticated. It simply uses regular expressions to find and extract the information it needs based on the standardised output of the ARMA mission editor. 
+As such, the program isn't a full blown SQM parser or anything particularly sophisticated. It simply uses regular expressions to find and extract the information it needs based on the standardised output of the ARMA mission editor.
+
+Please note that if you have python installed then you can just run the script file itself. It behaves exactly the same as the executable.
 
 ## How to use
 1. Place SMC in the same directory as the SQM file(s) to be converted.
 2. Run SMC.
-3. An SQF file with the same respective name will be created in the directory.
-4. Open the file to check that there were no errors in conversion (SMC will create error messages with the prefix `// Error:`).
+3. SQF file(s) with the same respective name(s) will be created in the directory.
+4. Open the file(s) to check that there were no errors in conversion (SMC will create error messages with the prefix `// Error:`).
 
 The output SQF will be structured like so:
 
@@ -104,5 +106,6 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Once/Repeatedly
   - [x] Present/Detected By
   
-## Footnote
+## Footnotes
 Originally written for the unit I play with. Come join us at http://www.reddit.com/r/clearbackblast
+Bohemia Interactive forum thread: http://forums.bistudio.com/showthread.php?189056-Silent-Map-Converter
