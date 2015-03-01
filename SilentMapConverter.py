@@ -8,7 +8,7 @@
 # Copyright:   (c) SilentSpike 2014
 # Licence:     GNU GPL v3.0
 #-------------------------------------------------------------------------------
-versionNum = "2.0.0"
+versionNum = "2.0.1"
 
 #Import needed libraries
 import os, re, sys, time
