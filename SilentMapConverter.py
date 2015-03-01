@@ -186,7 +186,8 @@ def procVehicle(veh):
                 #Z and Y coordinates flipped in SQM, split string
                 vehPos = vehPos.split(",")
                 if len(vehPos) == 3:
-                    vehPos.append(vehPos.pop(1))
+                    vehPos.pop(1)
+                    vehPos.append("0")
                 else:
                     return malformed("vehicle {0} has invalid position coordinates".format(vehIndex))
 
@@ -328,7 +329,8 @@ def procUnit(unit,groupIndex):
                 #Z and Y coordinates flipped in SQM, split string
                 unitPos = unitPos.split(",")
                 if len(unitPos) == 3:
-                    unitPos.append(unitPos.pop(1))
+                    unitPos.pop(1)
+                    unitPos.append("0")
                 else:
                     return malformed("unit {0} in group {1} has invalid position coordinates".format(unitIndex,groupIndex))
 
