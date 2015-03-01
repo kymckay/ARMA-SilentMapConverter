@@ -256,8 +256,13 @@ def procVehicle(veh):
         if vehInit:
             #Strings all the way down
             vehInit = vehInit.replace("\"\"","\"")
+            #Remove trailing spaces
+            while (vehInit.endswith(" ")):
+                vehInit = vehInit[:-1]
+            #No magic variable
             vehInit = vehInit.replace("this",vehVariable)
-            if vehInit[len(vehInit) - 1] != ";":
+            #Ensure statement is complete
+            if not vehInit.endswith(";"):
                 vehInit = vehInit + ";"
             vehCode += "\t{0}\n".format(vehInit)
 
@@ -410,8 +415,13 @@ def procUnit(unit,groupIndex):
         if unitInit:
             #Strings all the way down
             unitInit = unitInit.replace("\"\"","\"")
+            #Remove trailing spaces
+            while (unitInit.endswith(" ")):
+                unitInit = unitInit[:-1]
+            #No magic variable
             unitInit = unitInit.replace("this",unitVariable)
-            if unitInit[len(unitInit) - 1] != ";":
+            #Ensure statement is complete
+            if not unitInit.endswith(";"):
                 unitInit = unitInit + ";"
             unitCode += "\t\t{0}\n".format(unitInit)
 
@@ -780,6 +790,6 @@ for fileName in sqmFiles:
                 outputCode += procSensor(sensor)
 
         #The written file should be created/overwritten in the same directory
-        outputPath = scriptDirectory + "\\" + fileName[:len(fileName)-1] + "f"
+        outputPath = scriptDirectory + "\\" + fileName[:-1] + "f"
         with open(outputPath, 'w') as outputFile:
             outputFile.write(outputCode)
