@@ -260,7 +260,8 @@ def procVehicle(veh):
             while (vehInit.endswith(" ")):
                 vehInit = vehInit[:-1]
             #No magic variable
-            vehInit = vehInit.replace("this",vehVariable)
+            vehVariable = r"\1{0}\2".format(vehVariable)
+            vehInit = re.sub(r"(\s|^|;)this(\s|$|;)",vehVariable,vehInit,0,re.I)
             #Ensure statement is complete
             if not vehInit.endswith(";"):
                 vehInit = vehInit + ";"
@@ -419,7 +420,8 @@ def procUnit(unit,groupIndex):
             while (unitInit.endswith(" ")):
                 unitInit = unitInit[:-1]
             #No magic variable
-            unitInit = unitInit.replace("this",unitVariable)
+            unitVariable = r"\1{0}\2".format(unitVariable)
+            unitInit = re.sub(r"(\s|^|;)this(\s|$|;)",unitVariable,unitInit,0,re.I)
             #Ensure statement is complete
             if not unitInit.endswith(";"):
                 unitInit = unitInit + ";"
