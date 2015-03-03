@@ -8,7 +8,7 @@
 # Copyright:   (c) SilentSpike 2014
 # Licence:     GNU GPL v3.0
 #-------------------------------------------------------------------------------
-versionNum = "2.0.1"
+versionNum = "2.0.2"
 
 #Import needed libraries
 import os, re, sys, time
@@ -261,7 +261,7 @@ def procVehicle(veh):
                 vehInit = vehInit[:-1]
             #No magic variable
             vehVariable = r"\1{0}\2".format(vehVariable)
-            vehInit = re.sub(r"(\s|^|;)this(\s|$|;)",vehVariable,vehInit,0,re.I)
+            vehInit = re.sub(r"(^|[(\[{\s;])this($|[)\]},\s;])",vehVariable,vehInit,0,re.I)
             #Ensure statement is complete
             if not vehInit.endswith(";"):
                 vehInit = vehInit + ";"
@@ -421,7 +421,7 @@ def procUnit(unit,groupIndex):
                 unitInit = unitInit[:-1]
             #No magic variable
             unitVariable = r"\1{0}\2".format(unitVariable)
-            unitInit = re.sub(r"(\s|^|;)this(\s|$|;)",unitVariable,unitInit,0,re.I)
+            unitInit = re.sub(r"(^|[(\[{\s;])this($|[)\]},\s;])",unitVariable,unitInit,0,re.I)
             #Ensure statement is complete
             if not unitInit.endswith(";"):
                 unitInit = unitInit + ";"
