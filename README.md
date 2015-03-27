@@ -37,6 +37,7 @@ The output SQF will be structured like so:
 SMC will ignore player units, units that belong to sideLogic (including modules) and anything marked with `!SMC` (see list below for details).
 
 Below is a list of supported and unsupported (checked and unchecked respectively) SQM values. Keep this information in mind when designing your mission.
+
 Unsupported values are also discussed in the known limitations section below.
 
 - Units/Vehicles/Objects
