@@ -49,6 +49,7 @@ Unsupported values are also discussed in the known limitations section below.
   - [x] Placement radius
   - [x] Special
   - [x] Synchronization
+  - [x] Leader
   - [x] Direction
   - [x] Elevation (A3 feature)
   - [x] Skill
