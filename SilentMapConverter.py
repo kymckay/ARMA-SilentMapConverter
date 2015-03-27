@@ -285,7 +285,7 @@ def procUnit(unit,groupIndex):
         unitName = matchValue(1,"text",unit,"")
         unitPos = matchValue(2,"position",unit,"")
         unitRadius = matchValue(0,"placement",unit,"0")
-        unitSpecial = matchValue(1,"special",unit,"CAN_COLLIDE")
+        unitSpecial = matchValue(1,"special",unit,"FORM")
         unitType = matchValue(1,"vehicle",unit,"")
 
         #Optional unit values
