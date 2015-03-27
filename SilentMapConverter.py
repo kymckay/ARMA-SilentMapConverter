@@ -8,7 +8,7 @@
 # Copyright:   (c) SilentSpike 2014
 # Licence:     GNU GPL v3.0
 #-------------------------------------------------------------------------------
-versionNum = "2.0.2"
+versionNum = "2.0.3"
 
 #Import needed libraries
 import os, re, sys, time
@@ -296,6 +296,7 @@ def procUnit(unit,groupIndex):
         unitFuel = matchValue(0,"fuel",unit,"")
         unitHP = matchValue(0,"health",unit,"")
         unitInit = matchValue(1,"init",unit,"")
+        unitLeader = matchValue(0,"leader",unit,"")
         unitLock = matchValue(1,"lock",unit,"")
         unitOff = matchValue(0,"offsetY",unit,"")
         unitRank = matchValue(1,"rank",unit,"")
@@ -372,9 +373,12 @@ def procUnit(unit,groupIndex):
                     validSyncs = ",".join(validSyncs)
                     unitCode += "\t\t{0} synchronizeObjectsAdd [{1}];\n".format(unitVariable,validSyncs)
 
-        #Unit heading
-        if unitDir:
-            unitCode += "\t\t{0} setFormDir {1}; {0} setDir {1};\n".format(unitVariable,unitDir)
+        #Set group leader
+        if unitLeader:
+            unitCode += "\t\t(group {0}) selectLeader {0};\n".format(unitVariable)
+            #Unit heading (only matters for group leader)
+            if unitDir:
+                unitCode += "\t\t{0} setFormDir {1};\n\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
 
         #Unit elevation offset (Arma 3)
         if unitOff:
