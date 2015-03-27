@@ -226,7 +226,14 @@ def procVehicle(veh):
 
         #Vehicle heading
         if vehDir:
-            vehCode += "\t\t{0} setFormDir {1}; {0} setDir {1};\n".format(vehVariable,vehDir)
+            #Engine plays nicely with dir between 0-360
+            vehDir = str(float(vehDir) % 360)
+            #Truncate float if round number
+            if vehDir.endswith(".0"):
+                vehDir = vehDir[:-2]
+            #Unnecessary to set dir to 0
+            if vehDir != "0":
+                vehCode += "\t\t{0} setFormDir {1};\n\t\t{0} setDir {1};\n".format(vehVariable,vehDir)
 
         #Vehicle elevation offset (Arma 3)
         if vehOff:
@@ -378,7 +385,14 @@ def procUnit(unit,groupIndex):
             unitCode += "\t\t(group {0}) selectLeader {0};\n".format(unitVariable)
             #Unit heading (only matters for group leader)
             if unitDir:
-                unitCode += "\t\t{0} setFormDir {1};\n\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
+                #Engine plays nicely with dir between 0-360
+                unitDir = str(float(unitDir) % 360)
+                #Truncate float if round number
+                if unitDir.endswith(".0"):
+                    unitDir = unitDir[:-2]
+                #Unnecessary to set dir to 0
+                if unitDir != "0":
+                    unitCode += "\t\t{0} setFormDir {1};\n\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
 
         #Unit elevation offset (Arma 3)
         if unitOff:
