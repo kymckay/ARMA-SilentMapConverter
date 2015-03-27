@@ -36,7 +36,8 @@ The output SQF will be structured like so:
 ## Functionality
 SMC will ignore player units, units that belong to sideLogic (including modules) and anything marked with `!SMC` (see list below for details).
 
-Below is a list of supported and unsupported SQM values. Keep this information in mind when designing your mission.
+Below is a list of supported and unsupported (checked and unchecked respectively) SQM values. Keep this information in mind when designing your mission.
+Unsupported values are also discussed in the known limitations section below.
 
 - Units/Vehicles/Objects
   - [x] Description (used solely for `!SMC`)
@@ -59,10 +60,10 @@ Below is a list of supported and unsupported SQM values. Keep this information i
 - Waypoints
   - [x] Description (used solely for `!SMC`)
   - [x] Position
-  - [x] Height
+  - [ ] Height
   - [x] Placement radius
   - [x] Synchronization
-  - [ ] Unit attachment (waypoints can't be attached to units created via script)
+  - [ ] Unit attachment
   - [x] Static attachment
   - [x] Building position
   - [x] Type
@@ -105,6 +106,11 @@ Below is a list of supported and unsupported SQM values. Keep this information i
   - [x] Activation
   - [x] Once/Repeatedly
   - [x] Present/Detected By
+
+## Known limitations
+* Waypoint unit attachment can't be achieved due to an engine limitation that only allows waypoints to be attached to editor placed units.
+* Waypoint height is added to the ASL height of the ground rather than stored as a separate SQM value. This means it cannot be extracted and I would rather not run a redundant `ASLtoATL` conversion before creating every waypoint.
+* Objects won't always spawn in the exact same position as they will when using the editor. This is due to some engine magic that arbitrarily moves objects slightly when created via script.
 
 ## Footnotes
 * Github: https://github.com/SilentSpike/ARMA-SilentMapConverter
