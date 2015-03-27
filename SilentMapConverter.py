@@ -226,7 +226,7 @@ def procVehicle(veh):
 
         #Vehicle heading
         if vehDir:
-            vehCode += "\t{0} setDir {1};\n".format(vehVariable,vehDir)
+            vehCode += "\t\t{0} setFormDir {1}; {0} setDir {1};\n".format(vehVariable,vehDir)
 
         #Vehicle elevation offset (Arma 3)
         if vehOff:
@@ -285,7 +285,7 @@ def procUnit(unit,groupIndex):
         unitName = matchValue(1,"text",unit,"")
         unitPos = matchValue(2,"position",unit,"")
         unitRadius = matchValue(0,"placement",unit,"0")
-        unitSpecial = matchValue(1,"special",unit,"FORM")
+        unitSpecial = matchValue(1,"special",unit,"CAN_COLLIDE")
         unitType = matchValue(1,"vehicle",unit,"")
 
         #Optional unit values
@@ -374,7 +374,7 @@ def procUnit(unit,groupIndex):
 
         #Unit heading
         if unitDir:
-            unitCode += "\t\t{0} setDir {1};\n".format(unitVariable,unitDir)
+            unitCode += "\t\t{0} setFormDir {1}; {0} setDir {1};\n".format(unitVariable,unitDir)
 
         #Unit elevation offset (Arma 3)
         if unitOff:
