@@ -144,7 +144,7 @@ def procVehicle(veh):
         vehType = matchValue(1,"vehicle",veh,"")
         vehPos = matchValue(2,"position",veh,"")
         vehRadius = matchValue(0,"placement",veh,"0")
-        vehSpecial = matchValue(1,"special",veh,"FORM")
+        vehSpecial = matchValue(1,"special",veh,"CAN_COLLIDE")
 
         #Optional vehicle values
         vehAmmo = matchValue(0,"ammo",veh,"")
@@ -256,15 +256,13 @@ def procVehicle(veh):
         if vehInit:
             #Strings all the way down
             vehInit = vehInit.replace("\"\"","\"")
-            #Remove trailing spaces
-            while (vehInit.endswith(" ")):
-                vehInit = vehInit[:-1]
+            #Remove leading/trailing whitespace
+            vehInit = vehInit.strip()
             #No magic variable
-            vehVariable = r"\1{0}\2".format(vehVariable)
-            vehInit = re.sub(r"(^|[(\[{\s;])this($|[)\]},\s;])",vehVariable,vehInit,0,re.I)
+            vehInit = re.sub(r"\bthis\b",vehVariable,vehInit,0,re.I)
             #Ensure statement is complete
             if not vehInit.endswith(";"):
-                vehInit = vehInit + ";"
+                vehInit += ";"
             vehCode += "\t{0}\n".format(vehInit)
 
         #Must close condition block if present
@@ -416,15 +414,13 @@ def procUnit(unit,groupIndex):
         if unitInit:
             #Strings all the way down
             unitInit = unitInit.replace("\"\"","\"")
-            #Remove trailing spaces
-            while (unitInit.endswith(" ")):
-                unitInit = unitInit[:-1]
+            #Remove leading/trailing whitespace
+            unitInit = unitInit.strip()
             #No magic variable
-            unitVariable = r"\1{0}\2".format(unitVariable)
-            unitInit = re.sub(r"(^|[(\[{\s;])this($|[)\]},\s;])",unitVariable,unitInit,0,re.I)
+            unitInit = re.sub(r"\bthis\b",unitVariable,unitInit,0,re.I)
             #Ensure statement is complete
             if not unitInit.endswith(";"):
-                unitInit = unitInit + ";"
+                unitInit += ";"
             unitCode += "\t\t{0}\n".format(unitInit)
 
         #Must close condition block if present
@@ -472,7 +468,8 @@ def procWaypoint(wp,groupIndex):
             #Z and Y coordinates flipped in SQM, split string
             wpPos = wpPos.split(",")
             if len(wpPos) == 3:
-                wpPos.append(wpPos.pop(1))
+                wpPos.pop(1)
+                wpPos.append("0")
             else:
                 return malformed("waypoint {0} in group {1} has invalid position coordinates".format(wpIndex,groupIndex))
 
