@@ -30,13 +30,13 @@ def malformed(reason):
 def matchValue(valueType,value,item,default):
     #Numerical config values
     if valueType == 0:
-        match = re.search(r"\W" + value + r"=(-?\d+(\.\d+)?);",item,re.I)
+        match = re.search(r"\b" + value + r"=(-?\d+(\.\d+)?(e[+-]\d+)?);",item,re.I)
     #String config entries
     elif valueType == 1:
-        match = re.search(r"\W" + value + r"=\"(.+)\";",item,re.I)
+        match = re.search(r"\b" + value + r"=\"(.+)\";",item,re.I)
     #Array config entries
     elif valueType == 2:
-        match = re.search(r"\W" + value + r"\[\]=\{(.+)\};",item,re.I)
+        match = re.search(r"\b" + value + r"\[\]=\{(.+)\};",item,re.I)
     else:
         return default
 
