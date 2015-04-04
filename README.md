@@ -12,9 +12,14 @@ Please note that if you have python installed then you can just run the script f
 
 ## How to use
 1. Place SMC in the same directory as the SQM file(s) to be converted.
-2. Run SMC (use optional command line argument -a2 for use with ARMA 2).
+2. Run SMC.
 3. SQF file(s) with the same respective name(s) will be created in the directory.
 4. Open the file(s) to check that there were no errors in conversion (SMC will create error messages with the prefix `// Error:`).
+
+Command line arguments are as follows:
+
+* -h, --help	show help message and exit
+* -a2			output SQF compatible with ARMA 2
 
 The output SQF will be structured like so:
 
