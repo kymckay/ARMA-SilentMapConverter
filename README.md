@@ -16,20 +16,19 @@ Please note that if you have python installed then you can just run the script f
 3. SQF file(s) with the same respective name(s) will be created in the directory.
 4. Open the file(s) to check that there were no errors in conversion (SMC will create error messages with the prefix `// Error:`).
 
-Command line arguments are as follows:
-
-Argument	|Description
---------	|-------
--h, --help	|show help message and exit
--a2			|output SQF compatible with ARMA 2
-
 The output SQF will be structured like so:
-
 - Markers
 - Vehicles/Objects
 - Units
 - Waypoints
 - Sensors
+
+|Optional Command Line Arguments|
+ --------------------------------
+ Argument	|Description
+ --------	|--------
+ -h, --help	|show help message and exit
+ -a2		|output SQF compatible with ARMA 2
 
 ## Using SMC for a headless client
 1. Create a mission as normal.
