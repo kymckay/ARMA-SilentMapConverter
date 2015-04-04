@@ -331,13 +331,13 @@ def procUnit(unit,groupIndex):
             unitChance = str(round(float(unitChance),2))
             #Strings all the way down
             unitCond = unitCond.replace("\"\"","\"")
-            unitCode += "if (({0}) && (random 1 < {1})) then {{\n".format(unitCond,unitChance)
+            unitCode += "\tif (({0}) && (random 1 < {1})) then {{\n".format(unitCond,unitChance)
         elif unitCond:
             unitCond = unitCond.replace("\"\"","\"")
-            unitCode += "if ({0}) then {{\n".format(unitCond)
+            unitCode += "\tif ({0}) then {{\n".format(unitCond)
         elif unitChance:
             unitChance = str(round(float(unitChance),2))
-            unitCode += "if (random 1 < {0}) then {{\n".format(unitChance)
+            unitCode += "\tif (random 1 < {0}) then {{\n".format(unitChance)
 
         #Create the unit
         if unitType:
@@ -355,12 +355,12 @@ def procUnit(unit,groupIndex):
 
                 unitCode += "\t{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
                 #Vehicles can't be created as units, will be null
-                unitCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; ".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial)
+                unitCode += "\t\tif (isNull {0}) then {{\n\t\t\t{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"];\n ".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial)
                 #New A3 command createVehicleCrew can replace BIS_fnc_spawnCrew
                 if args.a2:
-                    unitCode +=  "[{0},_group{1}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,groupIndex)
+                    unitCode +=  "\t\t\t[{0},_group{1}] call BIS_fnc_spawnCrew;\n\t\t}};\n".format(unitVariable,groupIndex)
                 else:
-                    unitCode +=  "createVehicleCrew {0};}};\n".format(unitVariable)
+                    unitCode +=  "\t\t\tcreateVehicleCrew {0};\n\t\t}};\n".format(unitVariable)
             else:
                 return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
         else:
@@ -456,7 +456,7 @@ def procUnit(unit,groupIndex):
 
         #Must close condition block if present
         if unitCond or unitChance:
-            unitCode += "};\n"
+            unitCode += "\t};\n"
 
     return unitCode
 
