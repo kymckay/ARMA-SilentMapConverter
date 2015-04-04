@@ -713,12 +713,7 @@ def procSensor(sensor):
 #Main
 
 #Retrieve directory the program is ran in
-if hasattr(sys, 'frozen'):
-    #For use as an executable - sys.frozen only exists in the .exe
-    scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0]))
-else:
-    #For use in script form
-    scriptDirectory = os.path.dirname(os.path.realpath(__file__))
+scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 #Produce an array of sqm files in the directory
 sqmFiles = []
