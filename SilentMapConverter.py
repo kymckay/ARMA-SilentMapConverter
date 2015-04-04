@@ -259,18 +259,22 @@ def procVehicle(veh):
             vehHP = 1 - float(vehHP)
             vehCode += "\t{0} setDamage {1};\n".format(vehVariable,vehHP)
 
-        #Run init lines inline
+        #Vehicle init
         if vehInit:
-            #Strings all the way down
-            vehInit = vehInit.replace("\"\"","\"")
             #Remove leading/trailing whitespace
             vehInit = vehInit.strip()
-            #No magic variable
-            vehInit = re.sub(r"\bthis\b",vehVariable,vehInit,0,re.I)
-            #Ensure statement is complete
-            if not vehInit.endswith(";"):
-                vehInit += ";"
-            vehCode += "\t{0}\n".format(vehInit)
+            #A3 doesn't support setVehicleInit, so must run inline
+            if args.a2:
+                    vehCode += "\t\t{0} setVehicleInit \"{1}\";\n".format(vehVariable,vehInit)
+            else:
+                #Strings all the way down
+                vehInit = vehInit.replace("\"\"","\"")
+                #No magic variable
+                vehInit = re.sub(r"\bthis\b",vehVariable,vehInit,0,re.I)
+                #Ensure statement is complete
+                if not vehInit.endswith(";"):
+                    vehInit += ";"
+                vehCode += "\t{0}\n".format(vehInit)
 
         #Must close condition block if present
         if vehCond or vehChance:
@@ -350,8 +354,13 @@ def procUnit(unit,groupIndex):
                 unitPos = ",".join(unitPos)
 
                 unitCode += "\t{0} = _group{1} createUnit [\"{2}\",[{3}],[],{4},\"{5}\"];\n".format(unitVariable,groupIndex,unitType,unitPos,unitRadius,unitSpecial)
-                #Vehicles can't be created as units, use BIS func for backwards compatibility
-                unitCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; [{0},_group{5}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial,groupIndex)
+                #Vehicles can't be created as units, will be null
+                unitCode += "\tif (isNull {0}) then {{{0} = createVehicle [\"{1}\",[{2}],[],{3},\"{4}\"]; ".format(unitVariable,unitType,unitPos,unitRadius,unitSpecial)
+                #New A3 command createVehicleCrew can replace BIS_fnc_spawnCrew
+                if args.a2:
+                    unitCode +=  "[{0},_group{1}] call BIS_fnc_spawnCrew;}};\n".format(unitVariable,groupIndex)
+                else:
+                    unitCode +=  "createVehicleCrew {0};}};\n".format(unitVariable)
             else:
                 return malformed("unit {0} in group {1} has no position".format(unitIndex,groupIndex))
         else:
@@ -428,18 +437,22 @@ def procUnit(unit,groupIndex):
             unitHP = 1 - float(unitHP)
             unitCode += "\t\t{0} setDamage {1};\n".format(unitVariable,unitHP)
 
-        #Run init lines inline
+        #Unit init
         if unitInit:
-            #Strings all the way down
-            unitInit = unitInit.replace("\"\"","\"")
             #Remove leading/trailing whitespace
             unitInit = unitInit.strip()
-            #No magic variable
-            unitInit = re.sub(r"\bthis\b",unitVariable,unitInit,0,re.I)
-            #Ensure statement is complete
-            if not unitInit.endswith(";"):
-                unitInit += ";"
-            unitCode += "\t\t{0}\n".format(unitInit)
+            #A3 doesn't support setVehicleInit, so must run inline
+            if args.a2:
+                    unitCode += "\t\t{0} setVehicleInit \"{1}\";\n".format(unitVariable,unitInit)
+            else:
+                #Strings all the way down
+                unitInit = unitInit.replace("\"\"","\"")
+                #No magic variable
+                unitInit = re.sub(r"\bthis\b",unitVariable,unitInit,0,re.I)
+                #Ensure statement is complete
+                if not unitInit.endswith(";"):
+                    unitInit += ";"
+                unitCode += "\t\t{0}\n".format(unitInit)
 
         #Must close condition block if present
         if unitCond or unitChance:
@@ -732,8 +745,12 @@ for fileName in sqmFiles:
     #Make sure the file exists before opening to avoid errors
     if os.path.isfile(missionPath):
         #Initialise the output code with file header
-        outputCode = "// Created by SMC v{0}\n".format(versionNum)
-        outputCode += "// {0}\n\n".format(time.strftime("%c"))
+        outputCode = "// Created by SMC v{0} ".format(versionNum)
+        if args.a2:
+            outputCode += "(for Arma 2)"
+        else:
+            outputCode += "(for Arma 3)"
+        outputCode += "\n// {0}\n\n".format(time.strftime("%c"))
 
         #Open the file this way so that it closes automatically when done
         with open(missionPath) as missionFile:
@@ -806,6 +823,9 @@ for fileName in sqmFiles:
             outputCode += "// --Sensors--\n"
             for sensor in classSensors:
                 outputCode += procSensor(sensor)
+
+        if args.a2:
+            outputCode += "processInitCommands;"
 
         #The written file should be created/overwritten in the same directory
         outputPath = scriptDirectory + "\\" + fileName[:-1] + "f"
