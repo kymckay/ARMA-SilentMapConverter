@@ -8,10 +8,10 @@
 # Copyright:   (c) SilentSpike 2014
 # Licence:     GNU GPL v3.0
 #-------------------------------------------------------------------------------
-versionNum = "2.0.3"
+versionNum = "2.1.3"
 
 #Import needed libraries
-import os, re, sys, time
+import os, sys, argparse, re, time
 
 #Define side dictionary used to translate config to code
 sideDict = {
@@ -714,6 +714,11 @@ def procSensor(sensor):
 
 #Retrieve directory the program is ran in
 scriptDirectory = os.path.dirname(os.path.realpath(sys.argv[0]))
+
+#Get optional command line parameters
+parser = argparse.ArgumentParser(description='Converts SQM into SQF code')
+parser.add_argument("-a2",action="store_true",help="output SQF compatible with ARMA 2")
+args = parser.parse_args()
 
 #Produce an array of sqm files in the directory
 sqmFiles = []

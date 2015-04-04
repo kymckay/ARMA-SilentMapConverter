@@ -12,7 +12,7 @@ Please note that if you have python installed then you can just run the script f
 
 ## How to use
 1. Place SMC in the same directory as the SQM file(s) to be converted.
-2. Run SMC.
+2. Run SMC (use optional command line argument -a2 for use with ARMA 2).
 3. SQF file(s) with the same respective name(s) will be created in the directory.
 4. Open the file(s) to check that there were no errors in conversion (SMC will create error messages with the prefix `// Error:`).
 
@@ -111,7 +111,7 @@ Unsupported values are also discussed in the known limitations section below.
 
 ## Known limitations
 * Waypoint unit attachment can't be achieved due to an engine limitation that only allows waypoints to be attached to editor placed units.
-* Waypoint height is added to the ASL height of the ground rather than stored as a separate SQM value. This means it cannot be extracted and I would rather not run a redundant `ASLtoATL` conversion before creating every waypoint.
+* Waypoint height is added to the ASL height of the ground rather than stored as a separate SQM value. This means it cannot be extracted and I would rather not run a redundant `ASLtoATL` conversion before creating every waypoint. Fortunately it doesn't make a difference to the AI, so usage would be edge case at best.
 * Objects won't always spawn in the exact same position as they will when using the editor. This is due to some engine magic that arbitrarily moves objects slightly when created via script.
 
 ## Footnotes
