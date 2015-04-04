@@ -17,7 +17,7 @@ import os, re, sys, time
 sideDict = {
     "EAST": "east",
     "WEST": "west",
-    "GUER": "independent",
+    "GUER": "resistance",
     "CIV": "civilian",
     "LOGIC": "sideLogic"
 }
@@ -721,6 +721,7 @@ for fileName in os.listdir(scriptDirectory):
     if fileName.endswith(".sqm"):
         sqmFiles.append(fileName)
 
+#Run the program for each sqm file
 for fileName in sqmFiles:
     missionPath = scriptDirectory + "\\" + fileName
     #Make sure the file exists before opening to avoid errors
