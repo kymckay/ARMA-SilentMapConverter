@@ -23,8 +23,8 @@ The output SQF will be structured like so:
 - Waypoints
 - Sensors
 
-|Optional Command Line Arguments|
- --------------------------------
+## Optional command line arguments
+
  Argument	|Description
  --------	|--------
  -h, --help	|show help message and exit
