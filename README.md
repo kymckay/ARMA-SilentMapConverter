@@ -18,8 +18,10 @@ Please note that if you have python installed then you can just run the script f
 
 Command line arguments are as follows:
 
-* -h, --help	show help message and exit
-* -a2			output SQF compatible with ARMA 2
+Argument	|Description
+--------	|-------
+-h, --help	|show help message and exit
+-a2			|output SQF compatible with ARMA 2
 
 The output SQF will be structured like so:
 
