@@ -44,21 +44,21 @@ Unsupported values are also discussed in the known limitations section below.
   - [x] Description (used solely for `!SMC`)
   - [x] Condition of presence
   - [x] Probability of presence
-  - [x] Name (only available on the machine that runs the code, use publicVariable in unit's initialization field if required elsewhere)
+  - [x] Name (use publicVariable in unit's initialization field if required globally)
   - [x] Position
   - [x] Placement radius
   - [x] Special
   - [x] Synchronization
   - [x] Leader
   - [x] Direction
-  - [x] Elevation (A3 feature)
+  - [x] Elevation
   - [x] Skill
   - [x] Rank
   - [x] Lock
   - [x] Fuel
   - [x] Ammo
   - [x] Health
-  - [x] Initialization field (executed inline directly after unit is created)
+  - [x] Initialization field
 - Waypoints
   - [x] Description (used solely for `!SMC`)
   - [x] Position
@@ -77,7 +77,7 @@ Unsupported values are also discussed in the known limitations section below.
   - [x] Behaviour
   - [x] Speed
   - [x] Formation
-  - [x] Name (A3 feature - not the same as a variable name)
+  - [x] Name
   - [x] Visibility
   - [x] Script (and arguments)
 - Markers
